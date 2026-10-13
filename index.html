@@ -3,939 +3,331 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="description" content="מצלמים קבלה רפואית, והמערכת מכינה את בקשת ההחזר לקופת החולים ולביטוח הפרטי ועוקבת עד שהכסף חוזר.">
 <title>החזרי קבלות</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@700&family=Rubik:wght@400;500;600&display=swap">
+<meta name="description" content="מצלמים קבלה רפואית, והמערכת קוראת אותה, מחליטה לאן להגיש, מכינה את כל הפרטים לטופס ועוקבת עד שההחזר מקופת החולים ומהביטוח הפרטי נכנס לחשבון.">
+<meta property="og:title" content="החזרי קבלות">
+<meta property="og:description" content="מצלמים קבלה. המערכת מכינה את בקשת ההחזר לקופה ולביטוח, ועוקבת עד שהכסף חוזר.">
+<meta name="theme-color" content="#0a5a48">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230a5a48'/%3E%3Cpath d='M20 14h24v36l-4-3-4 3-4-3-4 3-4-3-4 3z' fill='%23fff'/%3E%3Cpath d='M25 24h14M25 31h14M25 38h8' stroke='%230a5a48' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Secular+One&family=Heebo:wght@400;500;700;800;900&display=swap">
 <style>
-/* Layout: RTL single column. Purpose + 3 steps -> big upload action -> "what to do now" task cards -> receipts ledger -> insurances -> rules of thumb */
+/* Layout: RTL editorial landing. Hero = headline + a live receipt being "read" with marker highlights.
+   Then: why, 3-step process, what it does, insurers, privacy, FAQ, closing CTA. */
 :root {
-  --bg: #f3f5f2; --surface: #ffffff; --sunk: #e9ece7; --fg: #17201c; --muted: #535f59;
-  --line: #cfd6cf; --accent: #0b6652; --accent-fg: #ffffff; --accent-soft: #d9eee7;
-  --new: #7a4f00; --new-bg: #fbedcf; --sub: #1b4a87; --sub-bg: #dde8fa;
-  --paid: #135f33; --paid-bg: #d8f1df; --rej: #952626; --rej-bg: #f8dede;
-  --display: "Frank Ruhl Libre", "David", Georgia, serif;
-  --body: "Rubik", "Segoe UI", Arial, sans-serif;
+  --bg: #ffffff; --bg-2: #f1f6f3; --ink: #0d1f1a; --muted: #4b5d56; --line: #d6e2dc;
+  --brand: #0a5a48; --brand-ink: #ffffff; --brand-2: #0e7a61; --brand-soft: #dff1ea;
+  --marker: #ffe14a; --marker-ink: #0d1f1a; --paper: #ffffff; --paper-line: #e3ebe7; --shadow: 0 24px 60px -24px rgba(10, 60, 48, .35);
+  --display: "Secular One", "Heebo", "Arial Hebrew", Arial, sans-serif;
+  --body: "Heebo", "Segoe UI", Arial, sans-serif;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --bg: #101513; --surface: #18201c; --sunk: #212a26; --fg: #e8eee9; --muted: #a3b0a9;
-  --line: #34403a; --accent: #4fc6a6; --accent-fg: #06201a; --accent-soft: #163a30;
-  --new: #f2c76e; --new-bg: #3a2d10; --sub: #a3c4f6; --sub-bg: #172a45;
-  --paid: #8bdba7; --paid-bg: #14331f; --rej: #f2a3a3; --rej-bg: #3d1a1a; color-scheme: dark } }
+  --bg: #0b1411; --bg-2: #101d19; --ink: #eef5f1; --muted: #a6b8b0; --line: #24352f;
+  --brand: #3fd0a8; --brand-ink: #062019; --brand-2: #7be3c6; --brand-soft: #143a30;
+  --marker: #ffd60a; --marker-ink: #14110a; --paper: #f7faf8; --paper-line: #dfe8e4; --shadow: 0 24px 60px -24px rgba(0, 0, 0, .7); color-scheme: dark } }
 :root[data-theme="dark"] {
-  --bg: #101513; --surface: #18201c; --sunk: #212a26; --fg: #e8eee9; --muted: #a3b0a9;
-  --line: #34403a; --accent: #4fc6a6; --accent-fg: #06201a; --accent-soft: #163a30;
-  --new: #f2c76e; --new-bg: #3a2d10; --sub: #a3c4f6; --sub-bg: #172a45;
-  --paid: #8bdba7; --paid-bg: #14331f; --rej: #f2a3a3; --rej-bg: #3d1a1a; color-scheme: dark }
+  --bg: #0b1411; --bg-2: #101d19; --ink: #eef5f1; --muted: #a6b8b0; --line: #24352f;
+  --brand: #3fd0a8; --brand-ink: #062019; --brand-2: #7be3c6; --brand-soft: #143a30;
+  --marker: #ffd60a; --marker-ink: #14110a; --paper: #f7faf8; --paper-line: #dfe8e4; --shadow: 0 24px 60px -24px rgba(0, 0, 0, .7); color-scheme: dark }
 
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
-body { margin: 0; }
-body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 17px; line-height: 1.6; padding-inline: 16px; padding-block: 16px 64px; }
-main { max-width: 820px; margin-inline: auto; display: flex; flex-direction: column; gap: 26px; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+html, body { overflow-x: clip; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 18px; line-height: 1.65; }
 h1, h2, h3 { margin: 0; text-wrap: balance; }
-h1 { font-family: var(--display); font-size: 2.2rem; line-height: 1.15; }
-h2 { font-size: 1.25rem; font-weight: 600; }
-h3 { font-size: 1.05rem; font-weight: 600; }
 p, ul, ol { margin: 0; }
-.muted { color: var(--muted); }
-.small { font-size: 0.9rem; }
-.num { font-variant-numeric: tabular-nums; }
-.stack { display: flex; flex-direction: column; gap: 10px; }
-.row-wrap { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-.between { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
-.skip { position: absolute; inset-inline-start: 16px; top: -60px; background: var(--accent); color: var(--accent-fg); padding: 8px 14px; border-radius: 8px; z-index: 5; }
+a { color: var(--brand); }
+:focus-visible { outline: 3px solid var(--brand); outline-offset: 3px; border-radius: 6px; }
+.wrap { max-width: 1120px; margin-inline: auto; padding-inline: 20px; }
+.skip { position: absolute; inset-inline-start: 16px; top: -60px; background: var(--brand); color: var(--brand-ink); padding: 10px 16px; border-radius: 10px; z-index: 10; font-weight: 800; }
 .skip:focus { top: 12px; }
-.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.mark { background: linear-gradient(transparent 12%, var(--marker) 12%, var(--marker) 88%, transparent 88%); color: var(--marker-ink); padding-inline: .12em; border-radius: 3px; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
 
-button, input, select, textarea { font: inherit; color: inherit; }
-button, .btn { cursor: pointer; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); padding: 10px 16px; min-height: 44px; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; color: var(--fg); }
-button.primary, .btn.primary { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); font-weight: 500; }
-button.big { font-size: 1.15rem; padding: 16px 26px; min-height: 60px; width: 100%; }
-button.danger { color: var(--rej); }
-button.link { border: 0; background: none; color: var(--accent); padding: 4px 2px; min-height: 0; text-decoration: underline; }
-button:disabled { opacity: .55; cursor: default; }
-:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
-a { color: var(--accent); }
-input, select, textarea { width: 100%; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; min-height: 44px; min-width: 0; }
-textarea { min-height: 80px; resize: vertical; }
-label { display: flex; flex-direction: column; gap: 4px; font-size: 0.95rem; min-width: 0; }
-label > span { font-weight: 500; }
-label > small { color: var(--muted); }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 56px; padding: 0 28px; border-radius: 14px; font-weight: 800; font-size: 1.1rem; text-decoration: none; border: 2px solid var(--brand); transition: transform .15s ease, box-shadow .15s ease; }
+.btn.primary { background: var(--brand); color: var(--brand-ink); box-shadow: 0 10px 24px -12px var(--brand); }
+.btn.ghost { color: var(--brand); background: transparent; }
+.btn:hover { transform: translateY(-2px); }
+@media (prefers-reduced-motion: reduce) { .btn:hover { transform: none; } }
+.btn svg { width: 22px; height: 22px; flex: none; }
 
-.card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 14px; }
-.banner { background: var(--new-bg); color: var(--new); border-radius: 10px; padding: 12px 14px; }
-.ok { background: var(--paid-bg); color: var(--paid); border-radius: 10px; padding: 12px 14px; }
+/* top bar */
+.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+.bar .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 68px; }
+.logo { display: flex; align-items: center; gap: 10px; font-family: var(--display); font-size: 1.45rem; color: var(--ink); text-decoration: none; }
+.logo svg { width: 36px; height: 36px; }
+.bar nav { display: flex; align-items: center; gap: 22px; font-weight: 700; }
+.bar nav a { color: var(--ink); text-decoration: none; }
+.bar nav a.btn { color: var(--brand-ink); min-height: 44px; padding: 0 18px; font-size: 1rem; }
+@media (max-width: 760px) { .bar nav a:not(.btn) { display: none; } }
 
-.steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; padding: 0; list-style: none; counter-reset: s; }
-.steps li { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; display: flex; gap: 10px; align-items: start; counter-increment: s; }
-.steps li::before { content: counter(s); flex: none; width: 30px; height: 30px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; font-weight: 600; }
-@media (max-width: 640px) { .steps { grid-template-columns: minmax(0, 1fr); } }
+/* hero */
+.hero { padding-block: 56px 72px; background: radial-gradient(1200px 500px at 85% -10%, var(--brand-soft), transparent 60%), var(--bg); }
+.hero .wrap { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); gap: 48px; align-items: center; }
+@media (max-width: 900px) { .hero .wrap { grid-template-columns: minmax(0, 1fr); gap: 40px; } }
+.eyebrow { display: inline-flex; align-items: center; gap: 8px; font-weight: 800; color: var(--brand); background: var(--brand-soft); border-radius: 999px; padding: 6px 14px; font-size: .95rem; }
+.hero h1 { font-family: var(--display); font-weight: 400; font-size: clamp(2.6rem, 6.4vw, 4.6rem); line-height: 1.04; letter-spacing: -0.015em; margin-block: 18px 20px; }
+.hero .lead { font-size: clamp(1.1rem, 2vw, 1.3rem); color: var(--muted); max-width: 34em; font-weight: 500; }
+.hero .ctas { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
+.hero .assure { display: flex; flex-wrap: wrap; gap: 8px 22px; margin-top: 22px; color: var(--muted); font-weight: 700; font-size: .95rem; list-style: none; padding: 0; }
+.hero .assure li::before { content: "✓"; color: var(--brand); margin-inline-end: 6px; font-weight: 900; }
 
-.tasks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-@media (max-width: 640px) { .tasks { grid-template-columns: minmax(0, 1fr); } }
-.task { background: var(--surface); border: 1px solid var(--line); border-inline-start: 5px solid var(--accent); border-radius: 12px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; }
-.task.warn { border-inline-start-color: var(--new); }
-.task.bad { border-inline-start-color: var(--rej); }
-.task.wait { border-inline-start-color: var(--sub); }
-.task b.n { font-size: 1.5rem; font-variant-numeric: tabular-nums; }
+/* receipt demo */
+.demo { position: relative; justify-self: center; width: min(100%, 420px); }
+.receipt { position: relative; background: var(--paper); color: #17201c; border-radius: 6px 6px 0 0; padding: 26px 26px 34px; box-shadow: var(--shadow); font-family: var(--body); transform: rotate(-2deg); overflow: hidden; }
+.receipt::after { content: ""; position: absolute; inset-inline: 0; bottom: 0; height: 10px; background: radial-gradient(circle at 10px 10px, var(--bg) 9px, transparent 10px) 0 0 / 20px 20px repeat-x; }
+.r-head { text-align: center; border-bottom: 2px dashed var(--paper-line); padding-bottom: 14px; margin-bottom: 14px; }
+.r-head b { display: block; font-size: 1.2rem; font-weight: 900; }
+.r-head small { color: #5a6b64; font-size: .82rem; }
+.r-row { display: flex; justify-content: space-between; gap: 10px; font-size: .95rem; padding-block: 5px; }
+.r-row span:first-child { color: #5a6b64; }
+.r-row b { font-weight: 800; }
+.r-total { border-top: 2px solid #17201c; margin-top: 10px; padding-top: 10px; font-size: 1.15rem; }
+.r-total b { font-size: 1.45rem; font-weight: 900; font-variant-numeric: tabular-nums; }
+.hl { background: linear-gradient(transparent 15%, var(--marker) 15%, var(--marker) 85%, transparent 85%) no-repeat 100% 0 / 100% 100%; border-radius: 3px; padding-inline: 3px; }
+.scan { position: absolute; inset-inline: 0; top: 0; height: 3px; background: var(--brand-2); box-shadow: 0 0 18px 4px color-mix(in srgb, var(--brand-2) 60%, transparent); opacity: 0; }
+.ready { position: relative; margin: -18px 18px 0 -18px; background: var(--bg); border: 2px solid var(--brand); border-radius: 16px; padding: 16px 18px; box-shadow: var(--shadow); display: grid; gap: 6px; transform: rotate(1.5deg); }
+.ready .tag { justify-self: start; background: var(--brand); color: var(--brand-ink); font-weight: 800; border-radius: 999px; padding: 3px 12px; font-size: .85rem; }
+.ready p { font-weight: 700; }
+.ready small { color: var(--muted); font-size: .9rem; }
+.demo .note { text-align: center; color: var(--muted); font-size: .8rem; margin-top: 14px; }
+@media (prefers-reduced-motion: no-preference) {
+  .scan { animation: scan 6s ease-in-out infinite; }
+  .hl { animation: hl 6s ease-out infinite; }
+  .hl.d2 { animation-delay: .25s; } .hl.d3 { animation-delay: .5s; } .hl.d4 { animation-delay: .75s; }
+  .ready { animation: pop 6s ease-out infinite; }
+  @keyframes scan { 0% { top: 0; opacity: 0; } 5% { opacity: 1; } 40% { top: 100%; opacity: 1; } 45%, 100% { top: 100%; opacity: 0; } }
+  @keyframes hl { 0%, 20% { background-size: 0% 100%; } 38%, 100% { background-size: 100% 100%; } }
+  @keyframes pop { 0%, 44% { transform: rotate(1.5deg) translateY(10px) scale(.97); } 52%, 100% { transform: rotate(1.5deg) translateY(0) scale(1); } }
+}
 
-.totals { display: flex; flex-wrap: wrap; gap: 6px 22px; color: var(--muted); font-size: 0.95rem; }
-.totals b { color: var(--fg); font-variant-numeric: tabular-nums; }
+/* sections */
+section { padding-block: 84px; }
+section.alt { background: var(--bg-2); }
+.sec-head { max-width: 760px; margin-bottom: 40px; display: grid; gap: 12px; }
+.kicker { font-weight: 900; color: var(--brand); letter-spacing: .02em; }
+h2 { font-family: var(--display); font-weight: 400; font-size: clamp(2rem, 4.4vw, 3rem); line-height: 1.1; }
+.sec-head p { color: var(--muted); font-size: 1.15rem; font-weight: 500; }
 
-.chips { display: flex; flex-wrap: wrap; gap: 6px; }
-.chip { border-radius: 999px; padding: 6px 14px; min-height: 38px; font-size: 0.92rem; }
-.chip[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); font-weight: 500; }
+.pains { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+@media (max-width: 820px) { .pains { grid-template-columns: minmax(0, 1fr); } }
+.pain { border-top: 4px solid var(--ink); padding-top: 18px; display: grid; gap: 8px; }
+.pain b.big { font-family: var(--display); font-weight: 400; font-size: 2.6rem; line-height: 1; color: var(--brand); }
+.pain h3 { font-size: 1.3rem; font-weight: 900; }
+.pain p { color: var(--muted); }
 
-.list { display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
-.item { display: grid; grid-template-columns: 60px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 12px 14px; border: 0; border-bottom: 1px solid var(--line); border-radius: 0; background: transparent; text-align: start; width: 100%; min-height: 76px; }
-.item:last-child { border-bottom: 0; }
-.item:hover { background: var(--sunk); }
-.thumb { width: 60px; height: 60px; border-radius: 8px; background: var(--sunk); object-fit: cover; display: grid; place-items: center; color: var(--muted); font-size: 0.75rem; text-align: center; }
-.item .main { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.item .title { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.item .end { display: flex; flex-direction: column; align-items: end; gap: 4px; }
-.pill { font-size: 0.8rem; font-weight: 500; border-radius: 999px; padding: 2px 10px; white-space: nowrap; }
-.st-reading, .st-ready { background: var(--accent-soft); color: var(--accent); }
-.st-new { background: var(--new-bg); color: var(--new); }
-.st-submitted { background: var(--sub-bg); color: var(--sub); }
-.st-paid { background: var(--paid-bg); color: var(--paid); }
-.st-rejected { background: var(--rej-bg); color: var(--rej); }
-.empty { padding: 28px 18px; text-align: center; display: flex; flex-direction: column; gap: 8px; align-items: center; }
+.steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; counter-reset: s; list-style: none; padding: 0; }
+@media (max-width: 860px) { .steps { grid-template-columns: minmax(0, 1fr); } }
+.step { background: var(--bg); border: 1px solid var(--line); border-radius: 22px; padding: 26px; display: grid; gap: 10px; align-content: start; counter-increment: s; position: relative; }
+.step::before { content: counter(s); font-family: var(--display); font-size: 3.4rem; line-height: 1; color: var(--brand); }
+.step h3 { font-size: 1.4rem; font-weight: 900; }
+.step p { color: var(--muted); }
+.step .chip { justify-self: start; font-size: .85rem; font-weight: 800; background: var(--brand-soft); color: var(--brand); border-radius: 999px; padding: 3px 12px; }
 
-.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-.grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
-@media (max-width: 560px) { .grid2, .grid3 { grid-template-columns: minmax(0, 1fr); } }
-.preview { display: flex; gap: 14px; flex-wrap: wrap; align-items: start; }
-.preview img { max-width: 220px; max-height: 280px; border-radius: 8px; border: 1px solid var(--line); object-fit: contain; background: var(--sunk); }
-.ai { background: var(--accent-soft); border-radius: 10px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; flex: 1 1 240px; min-width: 0; }
-.ai ul, .tips ul, .pack ol { padding-inline-start: 1.2em; display: flex; flex-direction: column; gap: 4px; }
-.summary { background: var(--sunk); border-radius: 10px; padding: 12px 14px; white-space: pre-wrap; font-size: 0.95rem; }
-.sep { border: 0; border-top: 1px solid var(--line); margin: 0; width: 100%; }
-.check { flex-direction: row; align-items: center; gap: 10px; font-size: 1rem; }
-.check input { width: 22px; height: 22px; min-height: 0; flex: none; }
+.feats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 900px) { .feats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px) { .feats { grid-template-columns: minmax(0, 1fr); } }
+.feat { border: 1px solid var(--line); border-radius: 18px; padding: 22px; display: grid; gap: 8px; align-content: start; background: var(--bg); }
+.feat svg { width: 34px; height: 34px; color: var(--brand); }
+.feat h3 { font-size: 1.18rem; font-weight: 900; }
+.feat p { color: var(--muted); font-size: 1rem; }
 
-.policy { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); }
-.policy:last-child { border-bottom: 0; }
-.tag { font-size: 0.78rem; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 1px 8px; margin-inline-start: 6px; }
-details.tips { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px 18px; }
-details.tips summary { cursor: pointer; font-weight: 600; font-size: 1.1rem; min-height: 32px; }
-details.tips[open] summary { margin-bottom: 10px; }
-.tips section { display: flex; flex-direction: column; gap: 4px; padding-block: 8px; border-top: 1px solid var(--line); }
-@media (prefers-reduced-motion: no-preference) { .panel-in { animation: rise .18s ease-out; } @keyframes rise { from { transform: translateY(8px); opacity: .6; } } }
+.insurers { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; }
+@media (max-width: 760px) { .insurers { grid-template-columns: minmax(0, 1fr); } }
+.ins { background: var(--bg); border: 1px solid var(--line); border-radius: 20px; padding: 24px; display: grid; gap: 14px; align-content: start; }
+.ins h3 { font-size: 1.25rem; font-weight: 900; }
+.pills { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; padding: 0; }
+.pills li { border: 2px solid var(--line); border-radius: 999px; padding: 6px 14px; font-weight: 800; }
+.flow { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; font-weight: 800; background: var(--brand-soft); color: var(--ink); border-radius: 16px; padding: 16px 18px; margin-top: 22px; }
+.flow .arrow { color: var(--brand); font-size: 1.4rem; }
+
+.privacy { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; align-items: start; }
+@media (max-width: 820px) { .privacy { grid-template-columns: minmax(0, 1fr); } }
+.checks { display: grid; gap: 14px; list-style: none; padding: 0; }
+.checks li { display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 10px; align-items: start; }
+.checks li::before { content: "✓"; width: 30px; height: 30px; border-radius: 50%; background: var(--brand); color: var(--brand-ink); display: grid; place-items: center; font-weight: 900; }
+.checks b { display: block; font-weight: 900; }
+.checks span { color: var(--muted); }
+
+.faq { display: grid; gap: 12px; max-width: 860px; }
+.faq details { border: 1px solid var(--line); border-radius: 16px; background: var(--bg); padding: 4px 20px; }
+.faq summary { cursor: pointer; font-weight: 900; font-size: 1.12rem; padding-block: 16px; list-style: none; display: flex; justify-content: space-between; gap: 12px; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: "+"; font-size: 1.5rem; line-height: 1; color: var(--brand); flex: none; }
+.faq details[open] summary::after { content: "−"; }
+.faq details p { padding-bottom: 18px; color: var(--muted); }
+
+.closing { background: var(--brand); color: var(--brand-ink); text-align: center; }
+.closing h2 { color: var(--brand-ink); }
+.closing p { font-size: 1.2rem; font-weight: 500; opacity: .92; max-width: 36em; margin: 14px auto 30px; }
+.closing .btn.primary { background: var(--brand-ink); color: var(--brand); border-color: var(--brand-ink); box-shadow: none; }
+footer { padding-block: 34px 46px; color: var(--muted); font-size: .92rem; border-top: 1px solid var(--line); }
+footer .wrap { display: grid; gap: 8px; }
 </style>
-
 </head>
 <body>
-<a class="skip" href="#todo">דילוג למה שצריך לעשות עכשיו</a>
-<main dir="rtl" lang="he">
-  <header class="stack">
-    <h1>החזרי קבלות</h1>
-    <p style="font-size:1.12rem">המערכת עוזרת לכם לקבל בחזרה כסף ששילמתם על טיפולים רפואיים: מהביטוח המשלים של קופת החולים ומהביטוח הפרטי.</p>
-    <ol class="steps" aria-label="איך זה עובד">
-      <li><span><b>מצלמים קבלה.</b><br><span class="muted small">אפשר כמה בבת אחת.</span></span></li>
-      <li><span><b>המערכת מכינה הכל.</b><br><span class="muted small">קוראת את הקבלה, בוחרת לאן להגיש ומכינה את הפרטים.</span></span></li>
-      <li><span><b>שולחים ומקבלים כסף.</b><br><span class="muted small">מעתיקים לאתר המבטח, והמערכת עוקבת עד שהכסף חוזר.</span></span></li>
-    </ol>
-  </header>
+<a class="skip" href="#main">דילוג לתוכן</a>
 
-  <p class="banner" id="banner" hidden></p>
+<header class="bar">
+  <div class="wrap">
+    <a class="logo" href="./" aria-label="החזרי קבלות, דף הבית">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="currentColor" style="color:var(--brand)"/><path d="M20 14h24v36l-4-3-4 3-4-3-4 3-4-3-4 3z" fill="#fff"/><path d="M25 24h14M25 31h14M25 38h8" stroke="#0a5a48" stroke-width="3" stroke-linecap="round"/></svg>
+      החזרי קבלות
+    </a>
+    <nav aria-label="ראשי">
+      <a href="#how">איך זה עובד</a>
+      <a href="#features">מה המערכת עושה</a>
+      <a href="#faq">שאלות</a>
+      <a class="btn primary" href="./app/">לפתיחת המערכת</a>
+    </nav>
+  </div>
+</header>
 
-  <section class="card" id="onboard" hidden aria-labelledby="ob-title">
-    <h2 id="ob-title">לפני שמתחילים: איפה אתם מבוטחים?</h2>
-    <p class="muted">בחרו את הביטוחים שלכם, כדי שהמערכת תדע לאן להגיש כל קבלה. אפשר לשנות את זה בכל זמן למטה.</p>
-    <div class="stack"><h3>ביטוח משלים בקופת החולים</h3><div class="chips" id="ob-kupah"></div></div>
-    <div class="stack"><h3>ביטוח בריאות פרטי</h3><div class="chips" id="ob-private"></div></div>
-    <p class="small muted">לא בטוחים אילו ביטוחים פרטיים יש לכם? בדקו בחינם ב<a href="https://harb.cma.gov.il" target="_blank" rel="noopener">הר הביטוח</a>, האתר הרשמי של רשות שוק ההון. (את הביטוח המשלים של הקופה רואים באזור האישי של הקופה.)</p>
-  </section>
-
-  <section class="stack" aria-labelledby="up-title">
-    <h2 id="up-title" class="sr">הוספת קבלות</h2>
-    <button class="primary big" id="btn-add" type="button">📷&nbsp; צלמו או העלו קבלות</button>
-    <input id="file" type="file" accept="image/*,application/pdf" multiple hidden>
-    <div class="between">
-      <p class="muted small">תמונה ברורה של כל הקבלה, כולל הסכום והתאריך. גם PDF מתקבל.</p>
-      <button class="link" type="button" id="btn-manual">או הקלידו קבלה ידנית</button>
-    </div>
-    <p class="ok" id="progress" role="status" aria-live="polite" hidden></p>
-  </section>
-
-  <section class="stack" id="todo" tabindex="-1" aria-labelledby="todo-title">
-    <h2 id="todo-title">מה צריך לעשות עכשיו</h2>
-    <div class="tasks" id="tasks"></div>
-    <div class="totals" id="totals" aria-label="סיכום השנה"></div>
-  </section>
-
-  <section class="card panel-in" id="pack" hidden aria-labelledby="pack-title">
-    <div class="between"><h2 id="pack-title" tabindex="-1">הגשה</h2><button type="button" id="pack-close">סגירה</button></div>
-    <div id="pack-body" class="stack pack"></div>
-  </section>
-
-  <section class="card panel-in" id="editor" hidden aria-labelledby="ed-title">
-    <div class="between"><h2 id="ed-title" tabindex="-1">קבלה</h2><button type="button" id="ed-close">סגירה</button></div>
-    <div class="preview"><div id="ed-image"></div><div class="ai" id="ed-ai" hidden></div></div>
-    <p class="banner" id="ed-deadline" hidden></p>
-
-    <h3>פרטי הקבלה</h3>
-    <div class="grid2">
-      <label><span>נותן השירות</span><input id="f-provider" placeholder="למשל: ד״ר כהן, אורתופד"></label>
-      <label><span>עבור מי</span><input id="f-member" list="members-list" placeholder="שם בן המשפחה"></label>
-    </div>
-    <datalist id="members-list"></datalist>
-    <div class="grid3">
-      <label><span>תאריך</span><input id="f-date" type="date"></label>
-      <label><span>סכום ששולם (₪)</span><input id="f-amount" type="number" inputmode="decimal" step="0.01" min="0"></label>
-      <label><span>מספר קבלה</span><input id="f-receipt"></label>
-    </div>
-    <div class="grid2">
-      <label><span>סוג הטיפול</span><select id="f-category"></select></label>
-      <label><span>תיאור</span><input id="f-desc" placeholder="למשל: 3 טיפולי פיזיותרפיה"></label>
-    </div>
-    <div class="grid2">
-      <label><span>להגיש קודם ל</span><select id="f-policy"></select></label>
-      <label><span>את ההפרש להגיש ל</span><select id="f-policy2"></select><small>אם הביטוח הראשון לא החזיר הכל</small></label>
-    </div>
-
-    <h3>מעקב</h3>
-    <div class="grid2">
-      <label><span>מצב</span><select id="f-status"></select></label>
-      <label><span>תאריך הגשה</span><input id="f-submitted" type="date"></label>
-    </div>
-    <div class="grid2">
-      <label><span>מספר תביעה</span><input id="f-claim"></label>
-      <label><span>סכום שהוחזר (₪)</span><input id="f-refund" type="number" inputmode="decimal" step="0.01" min="0"></label>
-    </div>
-    <label><span>הערות</span><textarea id="f-notes" placeholder="למשל: ביקשו הפניה מרופא משפחה"></textarea></label>
-
-    <div class="stack" id="ed-extra"></div>
-
-    <div class="stack">
-      <h3>פרטים להעתקה לטופס התביעה</h3>
-      <div class="summary" id="ed-summary"></div>
-      <div class="row-wrap">
-        <button type="button" id="ed-copy">העתקת הפרטים</button>
-        <a class="btn" id="ed-link" href="#" target="_blank" rel="noopener" hidden>לאתר המבטח</a>
-        <a class="btn" id="ed-open-img" href="#" target="_blank" rel="noopener" hidden>פתיחת צילום הקבלה</a>
-      </div>
-    </div>
-
-    <p class="banner" id="ed-msg" role="alert" hidden></p>
-    <div class="between">
-      <div class="row-wrap">
-        <button class="primary" type="button" id="ed-save">שמירה</button>
-        <button type="button" id="ed-submitted">שמירה וסימון "הגשתי"</button>
-      </div>
-      <button class="danger" type="button" id="ed-delete" hidden>מחיקה</button>
-    </div>
-  </section>
-
-  <section class="stack" aria-labelledby="list-title">
-    <div class="between"><h2 id="list-title">כל הקבלות</h2><div class="chips" id="filters" role="group" aria-label="סינון לפי מצב"></div></div>
-    <div class="list" id="list"></div>
-  </section>
-
-  <section class="card" aria-labelledby="set-title">
-    <h2 id="set-title">הביטוחים שלי ובני המשפחה</h2>
-    <div id="policies"></div>
-    <details>
-      <summary class="small" style="cursor:pointer;min-height:32px">הוספת ביטוח שלא ברשימה, או עריכה</summary>
-      <div class="stack" style="margin-top:10px" id="pol-form">
-        <div class="grid2">
-          <label><span>שם הביטוח</span><input id="p-name" placeholder="למשל: ביטוח קבוצתי דרך העבודה"></label>
-          <label><span>סוג</span><select id="p-kind"><option value="kupah">ביטוח משלים בקופת חולים</option><option value="private">ביטוח בריאות פרטי</option><option value="other">אחר</option></select></label>
+<main id="main">
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="wrap">
+      <div>
+        <span class="eyebrow">לקופת החולים ולביטוח הבריאות הפרטי</span>
+        <h1 id="hero-title">שילמתם לרופא? <span class="mark">תקבלו את הכסף בחזרה.</span></h1>
+        <p class="lead">מצלמים את הקבלה, והמערכת עושה את השאר: קוראת אותה, מחליטה לאן להגיש, מכינה כל שדה בטופס התביעה ועוקבת עד שההחזר נכנס לחשבון.</p>
+        <div class="ctas">
+          <a class="btn primary" href="./app/">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>
+            צלמו קבלה ראשונה
+          </a>
+          <a class="btn ghost" href="#how">איך זה עובד</a>
         </div>
-        <div class="grid2">
-          <label><span>אתר (לא חובה)</span><input id="p-url" type="url" dir="ltr" placeholder="https://"></label>
-          <label><span>טלפון (לא חובה)</span><input id="p-phone" dir="ltr"></label>
-        </div>
-        <label><span>מה הוא מכסה (לא חובה)</span><input id="p-coverage" placeholder="למשל: 75% מרופא מומחה עד 1,500 ₪ לשנה"><small>המערכת משתמשת בזה כדי לבחור לאן להגיש.</small></label>
-        <div class="row-wrap"><button type="button" id="p-save">הוספת ביטוח</button><button type="button" id="p-cancel" hidden>ביטול עריכה</button></div>
+        <ul class="assure">
+          <li>בחינם</li><li>בלי הרשמה</li><li>הנתונים נשארים אצלכם</li>
+        </ul>
       </div>
-    </details>
-    <hr class="sep">
-    <div class="stack">
-      <h3>בני המשפחה</h3>
-      <div class="chips" id="members"></div>
-      <div class="row-wrap" style="flex-wrap:nowrap"><label class="sr" for="m-name">שם בן משפחה</label><input id="m-name" placeholder="שם" style="max-width:240px"><button type="button" id="m-add">הוספה</button></div>
+
+      <div class="demo" aria-label="דוגמה: קבלה שהמערכת קוראת">
+        <div class="receipt">
+          <div class="scan" aria-hidden="true"></div>
+          <div class="r-head"><b>מרפאת השיניים ד״ר לוי</b><small>עוסק מורשה 0-1234567-8 · רחוב הרצל 12, חיפה</small></div>
+          <div class="r-row"><span>קבלה מס׳</span><b class="hl">40217</b></div>
+          <div class="r-row"><span>תאריך</span><b class="hl d2">14/09/2026</b></div>
+          <div class="r-row"><span>מטופל/ת</span><b class="hl d3">נועה כהן</b></div>
+          <div class="r-row"><span>טיפול</span><b>טיפול שורש, שן 36</b></div>
+          <div class="r-row r-total"><span>סה״כ שולם</span><b class="hl d4">₪1,850</b></div>
+        </div>
+        <div class="ready" role="img" aria-label="תוצאה: מוכן להגשה לביטוח המשלים בקופה, וההפרש לביטוח הפרטי">
+          <span class="tag">מוכן להגשה</span>
+          <p>להגיש קודם ל: ביטוח משלים בקופה</p>
+          <small>את ההפרש: לביטוח הבריאות הפרטי · 3 מסמכים לצירוף</small>
+        </div>
+        <p class="note">דוגמה להמחשה. הפרטים בדויים.</p>
+      </div>
     </div>
   </section>
 
-  <section class="card" id="local" hidden aria-labelledby="local-title">
-    <h2 id="local-title">קריאה אוטומטית ושמירה במכשיר הזה</h2>
-    <p class="small">בגרסה הזו הקבלות נשמרות רק בדפדפן שבמכשיר הזה. כדי שהמערכת תקרא קבלות לבד, היא צריכה מפתח API של Anthropic. המפתח נשמר רק בדפדפן שלכם ונשלח רק ל-Anthropic. קריאת קבלה עולה בדרך כלל כמה סנטים.</p>
-    <div class="row-wrap" style="flex-wrap:nowrap;align-items:end">
-      <label style="flex:1"><span>מפתח API</span><input id="k-key" type="password" dir="ltr" autocomplete="off" placeholder="sk-ant-..."></label>
-      <button type="button" id="k-save">שמירה</button>
+  <section aria-labelledby="why-title">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="kicker">למה זה קורה</span>
+        <h2 id="why-title">הכסף מגיע לכם. הבירוקרטיה עוצרת אותו.</h2>
+        <p>מי שיש לו ביטוח משלים או ביטוח בריאות פרטי זכאי להחזר על חלק גדול מהטיפולים. בפועל, הרבה קבלות לא מוגשות אף פעם.</p>
+      </div>
+      <div class="pains">
+        <div class="pain"><b class="big">מגירה</b><h3>הקבלה נשכחת</h3><p>משלמים, מקפלים את הקבלה, ונזכרים בה כשכבר מאוחר.</p></div>
+        <div class="pain"><b class="big">2 טפסים</b><h3>כל מבטח רוצה משהו אחר</h3><p>קודם לקופה, אחר כך את ההפרש לביטוח הפרטי. כל אחד עם טופס, מסמכים ותנאים משלו.</p></div>
+        <div class="pain"><b class="big">60 יום</b><h3>יש מועדים</h3><p>החזר על אמבולנס מגישים לקופה תוך 60 יום. תביעה לביטוח מתיישנת בדרך כלל אחרי 3 שנים.</p></div>
+      </div>
     </div>
-    <p class="small muted" id="k-state"></p>
-    <p class="small muted">יוצרים מפתח ב-<a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a>. אל תשמרו מפתח במחשב משותף.</p>
-    <hr class="sep">
-    <h3>גיבוי</h3>
-    <p class="small muted">ניקוי נתוני הדפדפן מוחק את הקבלות. שמרו גיבוי מדי פעם, ואפשר לשחזר ממנו גם במכשיר אחר.</p>
-    <div class="row-wrap"><button type="button" id="bk-export">הורדת גיבוי</button><button type="button" id="bk-import">שחזור מגיבוי</button><input id="bk-file" type="file" accept="application/json,.json" hidden></div>
   </section>
 
-  <details class="tips">
-    <summary>כללים חשובים שכדאי להכיר</summary>
-    <div class="stack">
-      <section><h3>מכוסה גם בקופה וגם בביטוח פרטי?</h3><p>על אותה הוצאה אפשר לקבל בסך הכל עד הסכום ששילמתם. מקובל להגיש קודם לביטוח המשלים של הקופה, ואת ההפרש לביטוח הפרטי, עם האישור מהקופה על מה שהוחזר. בדקו את התנאים בפוליסה שלכם.</p></section>
-      <section><h3>יש מועד אחרון</h3><p>תביעה לביטוח מתיישנת בדרך כלל אחרי 3 שנים מיום הטיפול, ובביטוח מחלות ואשפוז (חוזים מ-25.11.2020) אחרי 5 שנים. הגשת התביעה לא עוצרת את השעון.</p></section>
-      <section><h3>אמבולנס</h3><p>בקשה להחזר על פינוי באמבולנס מגישים לקופה תוך 60 יום. פינוי שהסתיים באשפוז מוחזר במלואו. ניידת טיפול נמרץ בלי אשפוז מוחזרת ב-50%. אמבולנס רגיל בלי אשפוז לא מוחזר.</p></section>
-      <section><h3>חדר מיון</h3><p>שילמתם על מיון? אפשר לבקש החזר בדיעבד: מביאים לקופה את סיכום השחרור ואת הקבלה.</p></section>
-      <section><h3>איפה רואים את כל הביטוחים שלי</h3><p><a href="https://harb.cma.gov.il" target="_blank" rel="noopener">הר הביטוח</a> הוא האתר הרשמי היחיד. אל תמסרו פרטים באתרים עם שם דומה. הביטוח המשלים של הקופה לא מופיע שם: בודקים אותו באזור האישי של הקופה.</p></section>
-      <section><h3>שמרו עותקים</h3><p>שמרו את כל מה ששלחתם ואת אישור ההגשה. המערכת שומרת את צילום הקבלה בשבילכם.</p></section>
-      <p class="muted small">זה מידע כללי ולא ייעוץ ביטוחי או משפטי. התנאים המחייבים הם של הקופה ושל הפוליסה שלכם.</p>
+  <section class="alt" id="how" aria-labelledby="how-title">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="kicker">איך זה עובד</span>
+        <h2 id="how-title">שלושה צעדים. רק אחד מהם שלכם.</h2>
+      </div>
+      <ol class="steps">
+        <li class="step"><span class="chip">אתם</span><h3>מצלמים את הקבלה</h3><p>מהטלפון או מהמחשב. אפשר כמה קבלות בבת אחת, וגם קובצי PDF.</p></li>
+        <li class="step"><span class="chip">המערכת</span><h3>היא מכינה את התביעה</h3><p>קוראת את הסכום, התאריך, נותן השירות והמטופל. בוחרת לאן להגיש קודם, ומכינה את כל השדות לטופס ואת רשימת המסמכים לצירוף.</p></li>
+        <li class="step"><span class="chip">יחד</span><h3>מגישים ועוקבים</h3><p>נכנסים לאזור האישי של המבטח, מדביקים שדה אחרי שדה ומצרפים את הקבצים. המערכת עוקבת, מזכירה ומכינה בקשת השלמה על ההפרש.</p></li>
+      </ol>
     </div>
-  </details>
+  </section>
+
+  <section id="features" aria-labelledby="feat-title">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="kicker">מה המערכת עושה</span>
+        <h2 id="feat-title">כל מה שבין הקבלה לבין ההחזר</h2>
+      </div>
+      <div class="feats">
+        <div class="feat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7V4h3M21 7V4h-3M3 17v3h3M21 17v3h-3"/><path d="M7 9h10M7 12h10M7 15h6"/></svg><h3>קוראת את הקבלה לבד</h3><p>סכום, תאריך, מספר קבלה, נותן השירות וסוג הטיפול. אתם רק בודקים.</p></div>
+        <div class="feat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3v12M6 15a3 3 0 1 0 0 6 3 3 0 0 0 0-6zM18 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM18 9c0 6-12 3-12 6"/></svg><h3>יודעת לאן להגיש</h3><p>קודם לביטוח המשלים בקופה, ואת ההפרש לביטוח הפרטי. כשהקופה מחזירה רק חלק, נפתחת לבד בקשת השלמה.</p></div>
+        <div class="feat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M4 16V6a2 2 0 0 1 2-2h10"/></svg><h3>טופס בלחיצות</h3><p>כל שדה מוכן להעתקה: שם, תעודת זהות, תאריך, סכום, מספר קבלה ופרטי בנק. מדביקים ישר בטופס של המבטח.</p></div>
+        <div class="feat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><h3>עוקבת ומזכירה</h3><p>מה מוכן להגשה, מה ממתין יותר מחודש, ואילו מועדים מתקרבים. הכל במסך אחד.</p></div>
+        <div class="feat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16v12H8l-4 4z"/><path d="M8 9h8M8 12h5"/></svg><h3>מנסחת ערעור</h3><p>תביעה נדחתה? המערכת כותבת מכתב ערעור מנומק לפי הפרטים ונימוק הדחייה.</p></div>
+        <div class="feat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6v18h12V7z"/><path d="M14 3v4h4M9 13h6M9 17h6"/></svg><h3>כל המסמכים במקום אחד</h3><p>צילום הקבלה, הפניה, סיכום ביקור ואישור מהקופה. מורידים בלחיצה ומצרפים לתביעה.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="alt" aria-labelledby="ins-title">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="kicker">עם מי זה עובד</span>
+        <h2 id="ins-title">כל הקופות וחברות הביטוח הגדולות</h2>
+        <p>בוחרים את הביטוחים שלכם פעם אחת, והמערכת זוכרת. אפשר להוסיף גם ביטוח קבוצתי מהעבודה.</p>
+      </div>
+      <div class="insurers">
+        <div class="ins"><h3>ביטוח משלים בקופת החולים</h3><ul class="pills"><li>כללית מושלם</li><li>מכבי זהב</li><li>מכבי שלי</li><li>מאוחדת עדיף</li><li>מאוחדת שיא</li><li>לאומית כסף</li><li>לאומית זהב</li></ul></div>
+        <div class="ins"><h3>ביטוח בריאות פרטי</h3><ul class="pills"><li>הראל</li><li>כלל</li><li>מגדל</li><li>מנורה מבטחים</li><li>הפניקס</li><li>איילון</li><li>ועוד</li></ul></div>
+      </div>
+      <div class="flow" aria-label="סדר ההגשה המקובל"><span>קבלה</span><span class="arrow" aria-hidden="true">←</span><span>ביטוח משלים בקופה</span><span class="arrow" aria-hidden="true">←</span><span>ההפרש לביטוח הפרטי</span><span class="arrow" aria-hidden="true">←</span><span>כסף בחשבון</span></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="priv-title">
+    <div class="wrap privacy">
+      <div class="sec-head" style="margin:0">
+        <span class="kicker">פרטיות</span>
+        <h2 id="priv-title">הקבלות שלכם נשארות אצלכם</h2>
+        <p>אין חשבון, אין שרת ואין מאגר. המערכת רצה בדפדפן שלכם.</p>
+      </div>
+      <ul class="checks">
+        <li><span><b>נשמר רק במכשיר שלכם</b><span>הקבלות, מספרי הזהות ופרטי הבנק נשמרים בדפדפן. אפשר להוריד גיבוי ולשחזר במכשיר אחר.</span></span></li>
+        <li><span><b>קריאה אוטומטית עם מפתח משלכם</b><span>צילום הקבלה נשלח לקריאה רק ל-Anthropic, עם מפתח API שאתם מזינים. בלי מפתח ממלאים את הפרטים ידנית.</span></span></li>
+        <li><span><b>אתם לוחצים על "שליחה"</b><span>המערכת לא נכנסת לאזור האישי שלכם. ההגשה עצמה נעשית אצלכם, עם הסיסמה וקוד האימות שלכם.</span></span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="alt" id="faq" aria-labelledby="faq-title">
+    <div class="wrap">
+      <div class="sec-head"><span class="kicker">שאלות</span><h2 id="faq-title">שאלות נפוצות</h2></div>
+      <div class="faq">
+        <details><summary>המערכת מגישה את התביעה בשבילי?</summary><p>כמעט. היא קוראת את הקבלה, בוחרת לאן להגיש, מכינה כל שדה להעתקה ומכינה את הקבצים. את השליחה עצמה עושים באזור האישי של המבטח, כי שם נדרשים תעודת הזהות שלכם וקוד חד-פעמי לטלפון.</p></details>
+        <details><summary>כמה זה עולה?</summary><p>המערכת חינמית. קריאה אוטומטית של קבלות משתמשת במפתח API של Anthropic שלכם, ועולה בדרך כלל כמה סנטים לקבלה. בלי מפתח הכל עובד, ורק את פרטי הקבלה מקלידים בעצמכם.</p></details>
+        <details><summary>על אילו קבלות אפשר לקבל החזר?</summary><p>זה תלוי בביטוח שלכם. בדרך כלל: רופאים מומחים, רפואה משלימה, פיזיותרפיה, טיפול רגשי, שיניים, בדיקות, משקפיים, תרופות, חדר מיון ואמבולנס. רשמו בהגדרות מה כל ביטוח מכסה, והמערכת תתחשב בזה.</p></details>
+        <details><summary>מכוסה גם בקופה וגם בביטוח הפרטי. מה עושים?</summary><p>על אותה הוצאה מקבלים בסך הכל עד הסכום ששילמתם. מקובל להגיש קודם לביטוח המשלים בקופה, ואת ההפרש לביטוח הפרטי עם האישור מהקופה. המערכת מכינה את בקשת ההשלמה לבד.</p></details>
+        <details><summary>איך אני יודע אילו ביטוחים יש לי?</summary><p>את הביטוחים הפרטיים בודקים בחינם ב<a href="https://harb.cma.gov.il" target="_blank" rel="noopener">הר הביטוח</a>, האתר הרשמי של רשות שוק ההון. את הביטוח המשלים של הקופה רואים באזור האישי של הקופה.</p></details>
+        <details><summary>זה ייעוץ ביטוחי?</summary><p>לא. המערכת עוזרת לסדר ולהגיש, והמידע בה כללי. התנאים המחייבים הם של הקופה ושל הפוליסה שלכם.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="closing" aria-labelledby="end-title">
+    <div class="wrap">
+      <h2 id="end-title">יש לכם קבלה במגירה?</h2>
+      <p>צלמו אותה עכשיו. בעוד דקה היא תהיה מוכנה להגשה.</p>
+      <a class="btn primary" href="./app/">לפתיחת המערכת</a>
+    </div>
+  </section>
 </main>
 
-<script>
-(function () {
-  var CATS = ['רופא מומחה', 'רפואה משלימה', 'שיניים', 'פיזיותרפיה', 'טיפול רגשי / פסיכולוג', 'תרופות', 'בדיקות ודימות', 'משקפיים ועדשות', 'ניתוח ואשפוז', 'חדר מיון', 'אמבולנס', 'הריון ולידה', 'התפתחות הילד', 'אחר'];
-  var STATUS = { reading: 'המערכת קוראת…', 'new': 'צריך לבדוק', ready: 'מוכן להגשה', submitted: 'הוגש, ממתין', paid: 'התקבל החזר', rejected: 'נדחה' };
-  var EDIT_STATUSES = ['new', 'ready', 'submitted', 'paid', 'rejected'];
-  var KINDS = { kupah: 'קופת חולים', 'private': 'ביטוח פרטי', other: 'אחר' };
-  var PRESETS = [
-    ['כללית מושלם', 'kupah', 'https://www.clalit.co.il', '*2700'], ['כללית מושלם פלטינום', 'kupah', 'https://www.clalit.co.il', '*2700'],
-    ['מכבי זהב', 'kupah', 'https://www.maccabi4u.co.il', '*3555'], ['מכבי שלי', 'kupah', 'https://www.maccabi4u.co.il', '*3555'],
-    ['מאוחדת עדיף', 'kupah', 'https://www.meuhedet.co.il', '*3833'], ['מאוחדת שיא', 'kupah', 'https://www.meuhedet.co.il', '*3833'],
-    ['לאומית כסף', 'kupah', 'https://www.leumit.co.il', '*507'], ['לאומית זהב', 'kupah', 'https://www.leumit.co.il', '*507'],
-    ['הראל', 'private', 'https://www.harel-group.co.il', ''], ['כלל', 'private', 'https://www.clalbit.co.il', ''],
-    ['מגדל', 'private', 'https://www.migdal.co.il', ''], ['מנורה מבטחים', 'private', 'https://www.menoramivt.co.il', ''],
-    ['הפניקס', 'private', 'https://www.fnx.co.il', ''], ['איילון', 'private', 'https://www.ayalon-ins.co.il', '']
-  ];
-  var DAY = 86400000;
-
-  var S = { db: null, uid: null, assets: null, sample: null, canImages: false, homeRef: null, recRef: null,
-    settings: { policies: [], members: [] }, settingsLoaded: false, receipts: [], loaded: false, filter: 'all',
-    edit: null, editPolicy: null, delArmed: false, packPolicy: null, busy: false };
-
-  function $(id) { return document.getElementById(id); }
-  function h(tag, props) {
-    var e = document.createElement(tag);
-    if (props) for (var k in props) { var v = props[k]; if (v == null) continue; if (k === 'text') e.textContent = v; else if (k === 'cls') e.className = v; else if (k.slice(0, 2) === 'on') e.addEventListener(k.slice(2), v); else e.setAttribute(k, v); }
-    for (var i = 2; i < arguments.length; i++) { var c = arguments[i]; if (c == null || c === false) continue; e.append(c.nodeType ? c : String(c)); }
-    return e;
-  }
-  function money(n) { return '₪' + (Number(n) || 0).toLocaleString('he-IL', { maximumFractionDigits: 2 }); }
-  function fmtDate(d) { if (!d) return ''; var p = String(d).split('-'); return p.length === 3 ? p[2] + '/' + p[1] + '/' + p[0] : d; }
-  function iso(t) { var d = new Date(t); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
-  function today() { return iso(Date.now()); }
-  function parseDate(s) { return /^\d{4}-\d{2}-\d{2}$/.test(s || '') ? new Date(s + 'T00:00:00').getTime() : null; }
-  function banner(msg) { var b = $('banner'); b.textContent = msg || ''; b.hidden = !msg; }
-  function edMsg(msg) { var b = $('ed-msg'); b.textContent = msg || ''; b.hidden = !msg; }
-  function progress(msg) { var b = $('progress'); b.textContent = msg || ''; b.hidden = !msg; }
-  var LOCAL = !(window.claude && window.claude.use);
-  function use(name) { return LOCAL ? localUse(name) : window.claude.use(name).catch(function () { return null; }); }
-  function blobUrl(id) { return LOCAL ? (L.urls[id] || '') : '/_blob/' + id; }
-
-  // ---------- local mode (outside Claude, e.g. GitHub Pages): IndexedDB storage + Anthropic API with the viewer's own key ----------
-  var L = { docs: new Map(), urls: {}, listeners: [], ready: null, idb: null, sdk: null };
-  var SDK_URL = 'https://cdn.jsdelivr.net/npm/@anthropic-ai/sdk@0.128.0/+esm';
-  function lsGet(k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } }
-  function lsSet(k, v) { try { if (v) localStorage.setItem(k, v); else localStorage.removeItem(k); } catch (e) {} }
-  function idbReq(r) { return new Promise(function (res, rej) { r.onsuccess = function () { res(r.result); }; r.onerror = function () { rej(r.error); }; }); }
-  function store(name, mode) { return L.idb.transaction(name, mode).objectStore(name); }
-  function localInit() {
-    if (L.ready) return L.ready;
-    L.ready = new Promise(function (res, rej) {
-      var r = indexedDB.open('bills', 1);
-      r.onupgradeneeded = function () { r.result.createObjectStore('docs'); r.result.createObjectStore('blobs'); };
-      r.onsuccess = function () { res(r.result); }; r.onerror = function () { rej(r.error); };
-    }).then(function (db) {
-      L.idb = db;
-      var s1 = store('docs', 'readonly'), s2 = store('blobs', 'readonly');
-      return Promise.all([idbReq(s1.getAllKeys()), idbReq(s1.getAll()), idbReq(s2.getAllKeys()), idbReq(s2.getAll())]);
-    }).then(function (r) {
-      r[0].forEach(function (k, i) { L.docs.set(k, r[1][i]); });
-      r[2].forEach(function (k, i) { L.urls[k] = URL.createObjectURL(r[3][i]); });
-    });
-    return L.ready;
-  }
-  function notify() { setTimeout(function () { L.listeners.slice().forEach(function (f) { f(); }); }, 0); }
-  function putDoc(path, data) { if (data) L.docs.set(path, data); else L.docs['delete'](path); notify(); var s = store('docs', 'readwrite'); return idbReq(data ? s.put(data, path) : s['delete'](path)); }
-  function snap(path) { var d = L.docs.get(path); return { id: path.split('/').pop(), exists: !!d, data: function () { return d; }, metadata: { fromCache: false, hasPendingWrites: false } }; }
-  function lDoc(path) {
-    return { path: path, id: path.split('/').pop(),
-      get: function () { return Promise.resolve(snap(path)); },
-      set: function (d) { return putDoc(path, JSON.parse(JSON.stringify(d))); },
-      update: function (d) { var cur = L.docs.get(path); if (!cur) return Promise.reject({ code: 'invalid_argument' }); return putDoc(path, Object.assign({}, cur, JSON.parse(JSON.stringify(d)))); },
-      'delete': function () { return putDoc(path, null); },
-      onSnapshot: function (next) { var f = function () { next(snap(path)); }; L.listeners.push(f); f(); return function () { L.listeners = L.listeners.filter(function (x) { return x !== f; }); }; },
-      collection: function (sub) { return lColl(path + '/' + sub); } };
-  }
-  function lColl(path, ord, lim) {
-    var q = { path: path,
-      doc: function (id) { return lDoc(path + '/' + (id || newId())); },
-      orderBy: function (f, dir) { return lColl(path, [f, dir || 'asc'], lim); },
-      limit: function (n) { return lColl(path, ord, n); },
-      onSnapshot: function (next) {
-        var f = function () {
-          var depth = path.split('/').length + 1, docs = [];
-          L.docs.forEach(function (v, k) { if (k.indexOf(path + '/') === 0 && k.split('/').length === depth) docs.push(snap(k)); });
-          if (ord) docs.sort(function (a, b) { var x = a.data()[ord[0]], y = b.data()[ord[0]]; return (x > y ? 1 : x < y ? -1 : 0) * (ord[1] === 'desc' ? -1 : 1); });
-          if (lim) docs = docs.slice(0, lim);
-          next({ docs: docs, size: docs.length, empty: !docs.length });
-        };
-        L.listeners.push(f); f(); return function () { L.listeners = L.listeners.filter(function (x) { return x !== f; }); };
-      } };
-    return q;
-  }
-  function b64(blob) { return new Promise(function (res, rej) { var r = new FileReader(); r.onload = function () { res(String(r.result).split(',')[1]); }; r.onerror = rej; r.readAsDataURL(blob); }); }
-  function apiClient() {
-    if (!L.sdk) L.sdk = import(SDK_URL).then(function (m) { var A = m['default'] || m.Anthropic; return new A({ apiKey: lsGet('bills.apiKey'), dangerouslyAllowBrowser: true }); });
-    return L.sdk;
-  }
-  function askClaude(prompt, images) {
-    if (!lsGet('bills.apiKey')) return Promise.reject({ code: 'not_granted' });
-    return Promise.all((images || []).map(function (b) { return b64(b).then(function (data) { return { type: 'image', source: { type: 'base64', media_type: b.type || 'image/jpeg', data: data } }; }); }))
-      .then(function (imgs) {
-        return apiClient().then(function (c) {
-          return c.beta.messages.create({
-            model: 'claude-opus-5-5', max_tokens: 16000, output_config: { effort: 'low' },
-            betas: ['server-side-fallback-2026-07-01'], fallbacks: 'default',
-            messages: [{ role: 'user', content: imgs.concat([{ type: 'text', text: prompt }]) }]
-          });
-        });
-      }).then(function (r) {
-        if (r.stop_reason === 'refusal') throw { code: 'refused' };
-        return r.content.filter(function (b) { return b.type === 'text'; }).map(function (b) { return b.text; }).join('');
-      }, function (e) {
-        if (e && e.code) throw e;
-        var st = e && e.status;
-        throw { code: st === 401 || st === 403 ? 'bad_key' : st === 429 ? 'rate_limited' : st === 400 ? 'image_rejected' : 'upstream_error' };
-      });
-  }
-  function parseJsonLoose(t) {
-    try { return JSON.parse(t); } catch (e) {}
-    var m = /```(?:json)?\s*([\s\S]*?)```/.exec(t); if (m) { try { return JSON.parse(m[1]); } catch (e) {} }
-    var a = t.indexOf('{'), b = t.lastIndexOf('}'); if (a >= 0 && b > a) { try { return JSON.parse(t.slice(a, b + 1)); } catch (e) {} }
-    throw { code: 'invalid_json' };
-  }
-  function localSample(input, opts) {
-    return askClaude(String(input), opts && opts.images).then(function (text) { if (opts && opts.onText) opts.onText({ text: text, delta: text }); return { text: text, truncated: false }; });
-  }
-  localSample.json = function (input, opts) { return askClaude(String(input), opts && opts.images).then(parseJsonLoose); };
-  localSample.limits = function () { return Promise.resolve(lsGet('bills.apiKey') ? { maxPromptBytes: 262144, images: { maxCount: 5, maxInputBytes: 20000000, mediaTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'] } } : { maxPromptBytes: 262144 }); };
-  function localUse(name) {
-    if (name === 'sample') return Promise.resolve(localSample);
-    if (name === 'user') return Promise.resolve({ id: function () { return Promise.resolve('local'); } });
-    return localInit().then(function () {
-      if (name === 'db') return { doc: lDoc, collection: function (p) { return lColl(p); } };
-      if (name === 'assets') return {
-        upload: function (blob, o) {
-          var id = (uid8() + uid8() + uid8() + uid8()).slice(0, 32), type = (o && o.type) || blob.type;
-          return idbReq(store('blobs', 'readwrite').put(blob, id)).then(function () { L.urls[id] = URL.createObjectURL(blob); return { id: id, url: L.urls[id], sizeBytes: blob.size, contentType: type }; });
-        },
-        'delete': function (id) { if (L.urls[id]) URL.revokeObjectURL(L.urls[id]); delete L.urls[id]; return idbReq(store('blobs', 'readwrite')['delete'](id)).then(function () { return { deleted: true }; }); }
-      };
-      return null;
-    }, function () { return null; });
-  }
-
-  function setupLocalPanel() {
-    $('local').hidden = false;
-    function state() {
-      var has = !!lsGet('bills.apiKey');
-      $('k-state').textContent = has ? '✓ קריאה אוטומטית פעילה.' : 'אין מפתח: את פרטי הקבלות תמלאו ידנית.';
-      if (!has) banner('כדי שהמערכת תקרא קבלות לבד, הוסיפו מפתח API בחלק "קריאה אוטומטית" למטה. בלי מפתח אפשר להקליד את הפרטים.'); else banner('');
-    }
-    $('k-save').onclick = function () {
-      var v = $('k-key').value.trim(); lsSet('bills.apiKey', v); $('k-key').value = ''; L.sdk = null; S.canImages = !!v; state();
-    };
-    $('bk-export').onclick = function () {
-      var out = { app: 'bills', version: 1, exportedAt: new Date().toISOString(), docs: {}, blobs: {} }, ids = Object.keys(L.urls);
-      L.docs.forEach(function (v, k) { out.docs[k] = v; });
-      Promise.all(ids.map(function (id) { return idbReq(store('blobs', 'readonly').get(id)).then(function (b) { return new Promise(function (res) { var r = new FileReader(); r.onload = function () { out.blobs[id] = r.result; res(); }; r.readAsDataURL(b); }); }); })).then(function () {
-        var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(out)], { type: 'application/json' }));
-        a.download = 'גיבוי-החזרי-קבלות-' + today() + '.json'; document.body.append(a); a.click(); a.remove();
-      });
-    };
-    $('bk-import').onclick = function () { $('bk-file').value = ''; $('bk-file').click(); };
-    $('bk-file').onchange = function () {
-      var f = $('bk-file').files && $('bk-file').files[0]; if (!f) return;
-      f.text().then(function (t) {
-        var data = JSON.parse(t); if (!data || data.app !== 'bills') throw 0;
-        var jobs = Object.keys(data.docs || {}).map(function (k) { return putDoc(k, data.docs[k]); });
-        Object.keys(data.blobs || {}).forEach(function (id) {
-          jobs.push(fetch(data.blobs[id]).then(function (r) { return r.blob(); }).then(function (b) { L.urls[id] = URL.createObjectURL(b); return idbReq(store('blobs', 'readwrite').put(b, id)); }));
-        });
-        return Promise.all(jobs);
-      }).then(function () { progress('הגיבוי שוחזר.'); renderAll(); }, function () { banner('הקובץ הזה לא נראה כמו גיבוי של המערכת.'); });
-    };
-    state();
-  }
-  function policyById(id) { return S.settings.policies.find(function (p) { return p.id === id; }); }
-  function uid8() { return Math.random().toString(36).slice(2, 10); }
-  function newId() { return 'r' + Date.now().toString(36) + uid8(); }
-  function statusOf(r) {
-    if (r.status === 'reading' && Date.now() - (r.createdAt || 0) > 10 * 60000) return 'new';
-    return STATUS[r.status] ? r.status : 'new';
-  }
-  function waitingLong(r) { var t = parseDate(r.submittedAt); return statusOf(r) === 'submitted' && t && Date.now() - t > 30 * DAY; }
-  function needsTopUp(r) { return statusOf(r) === 'paid' && r.policy2Id && !r.topUpId && Number(r.amount) > Number(r.refundAmount || 0) && policyById(r.policy2Id); }
-  function deadlineNote(r) {
-    var t = parseDate(r.date); if (!t || ['paid', 'submitted'].indexOf(statusOf(r)) >= 0) return '';
-    if (r.category === 'אמבולנס') {
-      var left = Math.ceil((t + 60 * DAY - Date.now()) / DAY);
-      return left < 0 ? 'עברו יותר מ-60 יום מהפינוי באמבולנס. בקשו מהקופה לבדוק בכל זאת, אבל ייתכן שכבר לא יאשרו.' : 'פינוי באמבולנס: נשארו ' + left + ' ימים להגיש לקופה (המועד הוא 60 יום).';
-    }
-    var leftM = Math.floor((t + 3 * 365 * DAY - Date.now()) / (30 * DAY));
-    if (leftM < 0) return 'עברו יותר מ-3 שנים מהטיפול. ייתכן שהתביעה התיישנה. בביטוח מחלות ואשפוז המועד יכול להיות 5 שנים.';
-    if (leftM < 6) return 'נשארו בערך ' + leftM + ' חודשים לפני שהתביעה עלולה להתיישן. כדאי להגיש בהקדם.';
-    return '';
-  }
-  function setInert(id, show) { var el = $(id); el.hidden = !show; }
-
-  // ---------- writes, one at a time per document ----------
-  var chains = {};
-  function writeDoc(ref, fn) { var k = ref.path; chains[k] = (chains[k] || Promise.resolve()).then(fn, fn); return chains[k]; }
-  function setReceipt(id, data) { var ref = S.recRef.doc(id); return writeDoc(ref, function () { return ref.set(data); }); }
-  function patchReceipt(id, data) { var ref = S.recRef.doc(id); return writeDoc(ref, function () { return ref.update(data); }); }
-  function saveSettings(patch) {
-    if (!S.homeRef) return Promise.resolve();
-    var next = { policies: patch.policies || S.settings.policies, members: patch.members || S.settings.members };
-    S.settings = next; renderAll();
-    return writeDoc(S.homeRef, function () { return S.homeRef.set(next); }).catch(function () { banner('השינוי לא נשמר. נסו שוב בעוד רגע.'); });
-  }
-
-  // ---------- static UI ----------
-  CATS.forEach(function (c) { $('f-category').append(h('option', { value: c, text: c })); });
-  EDIT_STATUSES.forEach(function (k) { $('f-status').append(h('option', { value: k, text: STATUS[k] })); });
-  [['all', 'הכל'], ['new', 'צריך לבדוק'], ['ready', 'מוכנות להגשה'], ['submitted', 'ממתינות'], ['paid', 'הוחזרו'], ['rejected', 'נדחו']].forEach(function (f) {
-    $('filters').append(h('button', { type: 'button', cls: 'chip', 'data-f': f[0], 'aria-pressed': String(f[0] === 'all'), onclick: function () { S.filter = f[0]; renderList(); } }, f[1]));
-  });
-
-  // ---------- rendering ----------
-  function renderTasks() {
-    var box = $('tasks'); box.textContent = '';
-    if (!S.loaded) { box.append(h('p', { cls: 'muted' }, 'טוען…')); return; }
-    var rs = S.receipts, groups = {}, check = [], waiting = [], rejected = [], topups = [], reading = 0;
-    rs.forEach(function (r) {
-      var st = statusOf(r);
-      if (st === 'reading') reading++;
-      if (st === 'ready') { var k = policyById(r.policyId) ? r.policyId : ''; (groups[k] = groups[k] || []).push(r); }
-      if (st === 'new') check.push(r);
-      if (waitingLong(r)) waiting.push(r);
-      if (st === 'rejected') rejected.push(r);
-      if (needsTopUp(r)) topups.push(r);
-    });
-    Object.keys(groups).forEach(function (pid) {
-      var list = groups[pid], pol = policyById(pid);
-      if (!pol) { check = check.concat(list); return; }
-      var sum = list.reduce(function (a, r) { return a + (Number(r.amount) || 0); }, 0);
-      box.append(h('div', { cls: 'task' },
-        h('span', null, h('b', { cls: 'n' }, list.length), ' ', list.length === 1 ? 'קבלה מוכנה' : 'קבלות מוכנות', ' להגשה ל', h('b', null, pol.name)),
-        h('span', { cls: 'muted small num' }, 'סה״כ ' + money(sum)),
-        h('button', { type: 'button', cls: 'primary', onclick: function () { openPack(pid); } }, 'להגשה ל' + pol.name)));
-    });
-    if (check.length) box.append(h('div', { cls: 'task warn' },
-      h('span', null, h('b', { cls: 'n' }, check.length), ' ', check.length === 1 ? 'קבלה צריכה' : 'קבלות צריכות', ' בדיקה שלכם'),
-      h('span', { cls: 'muted small' }, 'חסר פרט, או שלא ברור לאן להגיש.'),
-      h('button', { type: 'button', onclick: function () { openEditor(check[0]); } }, 'לבדיקה')));
-    topups.forEach(function (r) {
-      var p2 = policyById(r.policy2Id), diff = Number(r.amount) - Number(r.refundAmount || 0);
-      box.append(h('div', { cls: 'task' },
-        h('span', null, 'אפשר לבקש עוד ', h('b', { cls: 'num' }, money(diff)), ' מ', h('b', null, p2.name)),
-        h('span', { cls: 'muted small' }, 'ההפרש על ' + (r.provider || 'קבלה') + ', אחרי ההחזר מהביטוח הראשון.'),
-        h('button', { type: 'button', cls: 'primary', onclick: function () { createTopUp(r); } }, 'הכנת בקשת השלמה')));
-    });
-    if (waiting.length) box.append(h('div', { cls: 'task wait' },
-      h('span', null, h('b', { cls: 'n' }, waiting.length), ' ', waiting.length === 1 ? 'תביעה ממתינה' : 'תביעות ממתינות', ' יותר מחודש'),
-      h('span', { cls: 'muted small' }, 'כדאי להתקשר למבטח ולשאול מה המצב.'),
-      h('button', { type: 'button', onclick: function () { S.filter = 'submitted'; renderList(); $('list-title').scrollIntoView({ behavior: 'smooth' }); } }, 'להצגת התביעות')));
-    if (rejected.length) box.append(h('div', { cls: 'task bad' },
-      h('span', null, h('b', { cls: 'n' }, rejected.length), ' ', rejected.length === 1 ? 'תביעה נדחתה' : 'תביעות נדחו'),
-      h('span', { cls: 'muted small' }, 'המערכת יכולה לנסח בשבילכם מכתב ערעור.'),
-      h('button', { type: 'button', onclick: function () { openEditor(rejected[0]); } }, 'לניסוח ערעור')));
-    if (!box.children.length) box.append(h('div', { cls: 'task', style: 'grid-column:1/-1' },
-      h('b', null, reading ? 'המערכת קוראת קבלות…' : rs.length ? 'אין כרגע משהו שמחכה לכם' : 'עדיין אין קבלות'),
-      h('span', { cls: 'muted small' }, reading ? 'זה לוקח בדרך כלל עד דקה לקבלה.' : rs.length ? 'כל הקבלות הוגשו או טופלו. כשתגיע תשובה מהמבטח, עדכנו את הקבלה.' : 'לחצו על "צלמו או העלו קבלות" כדי להתחיל.')));
-
-    var yr = String(new Date().getFullYear()), paid = 0, pend = 0, open = 0;
-    rs.forEach(function (r) {
-      var st = statusOf(r);
-      if (st === 'paid' && (String(r.date || '').slice(0, 4) === yr || String(r.submittedAt || '').slice(0, 4) === yr)) paid += Number(r.refundAmount) || 0;
-      if (st === 'submitted') pend += Number(r.amount) || 0;
-      if (st === 'new' || st === 'ready') open += Number(r.amount) || 0;
-    });
-    var t = $('totals'); t.textContent = '';
-    t.append(h('span', null, 'הוחזר לכם השנה: ', h('b', null, money(paid))), h('span', null, 'ממתין לתשובה: ', h('b', null, money(pend))), h('span', null, 'עוד לא הוגש: ', h('b', null, money(open))));
-  }
-
-  function renderList() {
-    document.querySelectorAll('#filters .chip').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-f') === S.filter)); });
-    var list = $('list'); list.textContent = '';
-    if (!S.loaded) { list.append(h('div', { cls: 'empty muted' }, 'טוען את הקבלות…')); return; }
-    var rows = S.receipts.filter(function (r) { var st = statusOf(r); return S.filter === 'all' || st === S.filter || (S.filter === 'new' && st === 'reading'); });
-    if (!rows.length) {
-      list.append(h('div', { cls: 'empty' }, h('b', null, S.receipts.length ? 'אין קבלות בסינון הזה' : 'עדיין אין קבלות'),
-        h('span', { cls: 'muted small' }, S.receipts.length ? 'בחרו סינון אחר.' : 'קבלות שתעלו יופיעו כאן, עם המצב של כל אחת.')));
-      return;
-    }
-    rows.forEach(function (r) {
-      var st = statusOf(r), pol = policyById(r.policyId);
-      var thumb = r.imageId && r.imageType !== 'application/pdf' ? h('img', { cls: 'thumb', src: blobUrl(r.imageId), alt: '', loading: 'lazy' }) : h('div', { cls: 'thumb' }, r.imageId ? 'PDF' : 'ללא צילום');
-      var sub = [fmtDate(r.date), r.member, r.category].filter(Boolean).join(' · ');
-      list.append(h('button', { type: 'button', cls: 'item', onclick: function () { openEditor(r); }, 'aria-label': (r.provider || 'קבלה') + ', ' + money(r.amount) + ', ' + STATUS[st] },
-        thumb,
-        h('span', { cls: 'main' }, h('span', { cls: 'title' }, r.provider || r.description || (st === 'reading' ? 'קבלה חדשה' : 'קבלה ללא שם')),
-          h('span', { cls: 'muted small' }, sub || ' '), pol ? h('span', { cls: 'muted small' }, 'להגשה ל' + pol.name) : null),
-        h('span', { cls: 'end' }, h('b', { cls: 'num' }, money(st === 'paid' && r.refundAmount ? r.refundAmount : r.amount)), h('span', { cls: 'pill st-' + st }, STATUS[st]))));
-    });
-  }
-
-  function renderSettings() {
-    var box = $('policies'); box.textContent = '';
-    if (!S.settings.policies.length) box.append(h('p', { cls: 'muted small' }, 'עוד לא בחרתם ביטוחים.'));
-    S.settings.policies.forEach(function (p) {
-      box.append(h('div', { cls: 'policy' },
-        h('div', { style: 'min-width:0' }, h('div', null, h('b', null, p.name), h('span', { cls: 'tag' }, KINDS[p.kind] || 'אחר')),
-          p.coverage ? h('div', { cls: 'muted small' }, p.coverage) : null, p.phone ? h('div', { cls: 'muted small', dir: 'ltr', style: 'text-align:right' }, p.phone) : null),
-        h('div', { cls: 'row-wrap' }, h('button', { type: 'button', onclick: function () { editPolicy(p); }, 'aria-label': 'עריכת ' + p.name }, 'עריכה'),
-          h('button', { type: 'button', cls: 'danger', onclick: function () { saveSettings({ policies: S.settings.policies.filter(function (x) { return x.id !== p.id; }) }); }, 'aria-label': 'הסרת ' + p.name }, 'הסרה'))));
-    });
-    var have = S.settings.policies.map(function (p) { return p.name; });
-    ['kupah', 'private'].forEach(function (kind) {
-      var c = $('ob-' + kind); c.textContent = '';
-      PRESETS.filter(function (x) { return x[1] === kind; }).forEach(function (x) {
-        var on = have.indexOf(x[0]) >= 0;
-        c.append(h('button', { type: 'button', cls: 'chip', 'aria-pressed': String(on), onclick: function () {
-          if (on) saveSettings({ policies: S.settings.policies.filter(function (p) { return p.name !== x[0]; }) });
-          else saveSettings({ policies: S.settings.policies.concat([{ id: 'p' + uid8(), name: x[0], kind: x[1], url: x[2], phone: x[3], coverage: '' }]) });
-        } }, (on ? '✓ ' : '+ ') + x[0]));
-      });
-    });
-    $('onboard').hidden = !(S.settingsLoaded && !S.settings.policies.length);
-    var mm = $('members'); mm.textContent = ''; var dl = $('members-list'); dl.textContent = '';
-    if (!S.settings.members.length) mm.append(h('span', { cls: 'muted small' }, 'הוסיפו את בני המשפחה, כדי שהמערכת תשייך אליהם קבלות לפי השם שעל הקבלה.'));
-    S.settings.members.forEach(function (m) {
-      mm.append(h('button', { type: 'button', cls: 'chip', 'aria-label': 'הסרת ' + m, onclick: function () { saveSettings({ members: S.settings.members.filter(function (x) { return x !== m; }) }); } }, m + '  ✕'));
-      dl.append(h('option', { value: m }));
-    });
-    fillPolicySelects();
-  }
-  function fillPolicySelects() {
-    ['f-policy', 'f-policy2'].forEach(function (id, i) {
-      var sel = $(id), cur = sel.value; sel.textContent = '';
-      sel.append(h('option', { value: '', text: i ? 'אין' : 'עוד לא נבחר' }));
-      S.settings.policies.forEach(function (p) { sel.append(h('option', { value: p.id, text: p.name })); });
-      sel.value = cur;
-    });
-  }
-  function renderAll() { renderTasks(); renderList(); renderSettings(); if (S.packPolicy) renderPack(); }
-
-  // ---------- insurances form ----------
-  function editPolicy(p) {
-    S.editPolicy = p.id; $('pol-form').parentNode.open = true;
-    $('p-name').value = p.name; $('p-kind').value = p.kind || 'other'; $('p-url').value = p.url || ''; $('p-phone').value = p.phone || ''; $('p-coverage').value = p.coverage || '';
-    $('p-save').textContent = 'שמירת השינויים'; $('p-cancel').hidden = false; $('p-name').focus();
-  }
-  function resetPolicyForm() { S.editPolicy = null; ['p-name', 'p-url', 'p-phone', 'p-coverage'].forEach(function (i) { $(i).value = ''; }); $('p-kind').value = 'kupah'; $('p-save').textContent = 'הוספת ביטוח'; $('p-cancel').hidden = true; }
-  $('p-save').onclick = function () {
-    var p = { name: $('p-name').value.trim(), kind: $('p-kind').value, url: $('p-url').value.trim(), phone: $('p-phone').value.trim(), coverage: $('p-coverage').value.trim() };
-    if (!p.name) { $('p-name').focus(); return; }
-    if (S.editPolicy) { p.id = S.editPolicy; saveSettings({ policies: S.settings.policies.map(function (x) { return x.id === p.id ? p : x; }) }); }
-    else { p.id = 'p' + uid8(); saveSettings({ policies: S.settings.policies.concat([p]) }); }
-    resetPolicyForm();
-  };
-  $('p-cancel').onclick = resetPolicyForm;
-  $('m-add').onclick = function () { var n = $('m-name').value.trim(); if (!n || S.settings.members.indexOf(n) >= 0) return; $('m-name').value = ''; saveSettings({ members: S.settings.members.concat([n]) }); };
-  $('m-name').addEventListener('keydown', function (e) { if (e.key === 'Enter') $('m-add').click(); });
-
-  // ---------- automatic pipeline: upload -> read -> decide -> ready ----------
-  $('btn-add').onclick = function () {
-    if (!S.recRef) { banner('אי אפשר לשמור קבלות כרגע. פתחו את המערכת מתוך חשבון Claude שלכם.'); return; }
-    if (!S.assets) { banner('העלאת צילומים זמינה רק לבעלים של המערכת. אפשר להקליד קבלה ידנית.'); return; }
-    $('file').value = ''; $('file').click();
-  };
-  $('file').onchange = function () {
-    var files = Array.prototype.slice.call($('file').files || []);
-    if (!files.length) return;
-    processFiles(files);
-  };
-
-  function processFiles(files) {
-    var i = 0, ok = 0;
-    function next() {
-      if (i >= files.length) {
-        progress(ok ? (ok === 1 ? 'הקבלה נקלטה. ראו למטה מה לעשות איתה.' : ok + ' קבלות נקלטו. ראו למטה מה לעשות איתן.') : '');
-        setTimeout(function () { progress(''); }, 8000);
-        $('todo').focus();
-        return;
-      }
-      var f = files[i++];
-      progress('מעבד קבלה ' + i + ' מתוך ' + files.length + '…');
-      return processOne(f).then(function (good) { if (good) ok++; }, function () {}).then(next);
-    }
-    next();
-  }
-
-  function processOne(file) {
-    var isPdf = file.type === 'application/pdf';
-    var id = newId(), created = Date.now();
-    return shrink(file).then(function (blob) {
-      return S.assets.upload(blob, { type: isPdf ? 'application/pdf' : (blob.type || 'image/jpeg') }).then(function (res) {
-        var base = { createdAt: created, updatedAt: created, imageId: res.id, imageType: res.contentType, status: 'reading', category: 'אחר' };
-        return setReceipt(id, base).then(function () {
-          if (isPdf || !S.sample || !S.canImages) {
-            var why = isPdf ? 'קובץ PDF לא נקרא אוטומטית. מלאו את הפרטים.' : 'קריאה אוטומטית לא זמינה כאן. מלאו את הפרטים.';
-            return patchReceipt(id, { status: 'new', ai: { note: why, docsNeeded: [] } }).then(function () { return true; });
-          }
-          return readReceipt(blob).then(function (fields) {
-            return patchReceipt(id, fields).then(function () { return true; });
-          }, function (msg) {
-            return patchReceipt(id, { status: 'new', ai: { note: msg, docsNeeded: [] } }).then(function () { return true; });
-          });
-        });
-      });
-    }).catch(function (e) {
-      var code = e && e.code;
-      banner(code === 'unsupported_type' ? 'אחד הקבצים לא נתמך. צלמו את הקבלה כתמונה (JPG או PNG).' : code === 'too_large' ? 'אחד הקבצים גדול מדי. נסו צילום קטן יותר.' : code === 'quota_exceeded' || code === 'quota_or_state' ? 'נגמר המקום. מחקו קבלות ישנות שכבר טופלו.' : 'קבלה אחת לא נקלטה. נסו להעלות אותה שוב.');
-      return false;
-    });
-  }
-
-  function shrink(file) {
-    if (!/^image\/(jpeg|png|webp)$/.test(file.type) || !window.createImageBitmap) return Promise.resolve(file);
-    return createImageBitmap(file, { imageOrientation: 'from-image' }).then(function (bmp) {
-      var sc = Math.min(1, 2000 / Math.max(bmp.width, bmp.height));
-      var c = document.createElement('canvas'); c.width = Math.round(bmp.width * sc); c.height = Math.round(bmp.height * sc);
-      c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
-      return new Promise(function (res) { c.toBlob(function (b) { res(b || file); }, 'image/jpeg', 0.85); });
-    }).catch(function () { return file; });
-  }
-
-  function readReceipt(blob) {
-    var pols = S.settings.policies.map(function (p) { return { id: p.id, name: p.name, kind: KINDS[p.kind] || p.kind, coverage: p.coverage || '' }; });
-    var prompt = [
-      'The image is a photo of a receipt (usually Israeli, usually Hebrew) that the user wants a refund for from health insurance.',
-      'Read it, then decide where to claim. Rules: if a health-fund supplementary plan (קופת חולים) can cover it, claim there first and put a private insurer as the second policy for the remaining difference; if only one policy fits, leave the second empty. Ambulance and emergency-room charges go to the health fund.',
-      'Reply with only one JSON object with exactly these keys:',
-      '{"isReceipt": boolean, "provider": string, "date": "YYYY-MM-DD" or "", "amount": number (total actually paid) or null, "receiptNumber": string, "patient": string (patient name if printed) or "", "category": one of ' + JSON.stringify(CATS) + ', "description": short Hebrew description of the service, "policyId": best policy id from the list or "", "policy2Id": second policy id for the difference or "", "docsNeeded": short Hebrew strings naming documents usually needed for this claim (for example: קבלה מקורית עם מספר עוסק, הפניה מרופא, סיכום ביקור), "note": one or two short Hebrew sentences on anything unreadable or doubtful}',
-      'Family members: ' + JSON.stringify(S.settings.members),
-      'Policies: ' + JSON.stringify(pols)
-    ].join('\n');
-    return S.sample.json(prompt, { images: [blob] }).then(function (r) {
-      if (!r || typeof r !== 'object') throw { code: 'invalid_json' };
-      if (r.isReceipt === false) return { status: 'new', ai: { note: String(r.note || 'זה לא נראה כמו קבלה. בדקו את התמונה.'), docsNeeded: [] } };
-      var member = r.patient && S.settings.members.find(function (m) { return String(r.patient).indexOf(m) >= 0 || m.indexOf(String(r.patient)) >= 0; });
-      var out = {
-        provider: String(r.provider || ''), date: /^\d{4}-\d{2}-\d{2}$/.test(r.date || '') ? r.date : '',
-        amount: typeof r.amount === 'number' ? r.amount : null, receiptNumber: String(r.receiptNumber || ''),
-        member: member || String(r.patient || ''), category: CATS.indexOf(r.category) >= 0 ? r.category : 'אחר',
-        description: String(r.description || ''),
-        policyId: policyById(r.policyId) ? r.policyId : '', policy2Id: policyById(r.policy2Id) && r.policy2Id !== r.policyId ? r.policy2Id : '',
-        ai: { note: String(r.note || ''), docsNeeded: Array.isArray(r.docsNeeded) ? r.docsNeeded.map(String).slice(0, 6) : [] },
-        updatedAt: Date.now()
-      };
-      out.status = out.amount != null && out.provider && out.date && out.policyId ? 'ready' : 'new';
-      return out;
-    }, function (e) {
-      throw ({ bad_key: 'מפתח ה-API לא תקין. בדקו אותו בחלק "קריאה אוטומטית". בינתיים מלאו ידנית.', not_granted: LOCAL ? 'אין מפתח API, ולכן הקבלה לא נקראה. מלאו את הפרטים ידנית.' : 'לא אישרתם למערכת לקרוא קבלות. מלאו את הפרטים ידנית.', rate_limited: 'יותר מדי בקשות כרגע. מלאו ידנית או העלו שוב מאוחר יותר.', refused: 'לא הצלחנו לקרוא את התמונה. מלאו את הפרטים ידנית.', image_rejected: 'התמונה לא נתמכת. צלמו שוב (JPG או PNG).', invalid_json: 'הקריאה לא הצליחה. מלאו ידנית או צלמו שוב.' }[e && e.code] || 'הקריאה האוטומטית נכשלה. מלאו את הפרטים ידנית.');
-    });
-  }
-
-  function createTopUp(r) {
-    var p2 = policyById(r.policy2Id), p1 = policyById(r.policyId), id = newId();
-    var diff = Math.round((Number(r.amount) - Number(r.refundAmount || 0)) * 100) / 100;
-    var d = { createdAt: Date.now(), updatedAt: Date.now(), status: 'ready', imageId: r.imageId || '', imageType: r.imageType || '',
-      provider: r.provider || '', member: r.member || '', date: r.date || '', amount: diff, receiptNumber: r.receiptNumber || '',
-      category: r.category || 'אחר', description: 'השלמה' + (p1 ? ' אחרי החזר מ' + p1.name : '') + (r.description ? ': ' + r.description : ''),
-      policyId: r.policy2Id, policy2Id: '', parentId: r.id,
-      ai: { note: 'בקשת השלמה על ההפרש. סכום הקבלה המקורי: ' + money(r.amount) + ', הוחזר: ' + money(r.refundAmount) + '.', docsNeeded: ['צילום הקבלה המקורית', 'אישור מ' + (p1 ? p1.name : 'הביטוח הראשון') + ' על הסכום שהוחזר'] } };
-    setReceipt(id, d).then(function () { return patchReceipt(r.id, { topUpId: id }); }).then(function () {
-      progress('הוכנה בקשת השלמה ל' + p2.name + '. היא מחכה בכרטיס "מוכנות להגשה".');
-    }, function () { banner('לא הצלחנו ליצור את בקשת ההשלמה. נסו שוב.'); });
-  }
-
-  // ---------- submission pack ----------
-  function openPack(pid) { closeEditor(); S.packPolicy = pid; renderPack(); $('pack').hidden = false; $('pack-title').focus(); $('pack').scrollIntoView({ behavior: 'smooth', block: 'start' }); }
-  function closePack() { S.packPolicy = null; $('pack').hidden = true; }
-  $('pack-close').onclick = closePack;
-  function renderPack() {
-    var pol = policyById(S.packPolicy); if (!pol) { closePack(); return; }
-    var items = S.receipts.filter(function (r) { return statusOf(r) === 'ready' && r.policyId === pol.id; });
-    $('pack-title').textContent = 'הגשה ל' + pol.name;
-    var b = $('pack-body'); b.textContent = '';
-    if (!items.length) { b.append(h('p', { cls: 'ok' }, 'אין יותר קבלות שמחכות להגשה ל' + pol.name + '.')); return; }
-    var docs = {}; items.forEach(function (r) { ((r.ai && r.ai.docsNeeded) || []).forEach(function (d) { docs[d] = 1; }); });
-    var steps = h('ol', null,
-      h('li', null, 'היכנסו לאזור האישי של ', pol.url ? h('a', { href: pol.url, target: '_blank', rel: 'noopener' }, pol.name) : pol.name, ' באתר או באפליקציה', pol.phone ? ' (או התקשרו ' : '', pol.phone ? h('span', { dir: 'ltr' }, pol.phone) : '', pol.phone ? ')' : '', '.'),
-      h('li', null, 'בחרו "הגשת תביעה" או "בקשה להחזר".'),
-      h('li', null, 'לכל קבלה: העתיקו את הפרטים מכאן וצרפו את הצילום (כפתור "פתיחת הצילום", ואז שמירה למכשיר).'),
-      h('li', null, 'אחרי השליחה, סמנו כאן את מה שהגשתם. המערכת תזכיר לכם אם לא תגיע תשובה תוך חודש.'));
-    b.append(h('h3', null, 'איך מגישים'), steps);
-    if (Object.keys(docs).length) { var ul = h('ul', { cls: 'small' }); Object.keys(docs).forEach(function (d) { ul.append(h('li', null, d)); }); b.append(h('div', { cls: 'banner' }, h('b', null, 'ייתכן שיבקשו גם: '), ul)); }
-    var checks = [];
-    items.forEach(function (r) {
-      var cb = h('input', { type: 'checkbox', id: 'pk-' + r.id }); cb.checked = true; checks.push([cb, r]);
-      var sum = summaryText(r, pol);
-      var copyBtn = h('button', { type: 'button' }, 'העתקת הפרטים');
-      copyBtn.onclick = function () { copy(sum, copyBtn, pre); };
-      var pre = h('div', { cls: 'summary' }, sum);
-      b.append(h('div', { cls: 'card', style: 'padding:14px;gap:10px' },
-        h('label', { cls: 'check', 'for': 'pk-' + r.id }, cb, h('span', null, h('b', null, (r.provider || 'קבלה') + ' · ' + money(r.amount)), h('span', { cls: 'muted small' }, '  ' + [fmtDate(r.date), r.member].filter(Boolean).join(' · ')))),
-        pre,
-        h('div', { cls: 'row-wrap' }, copyBtn, r.imageId ? h('a', { cls: 'btn', href: blobUrl(r.imageId), target: '_blank', rel: 'noopener' }, 'פתיחת הצילום') : null,
-          h('button', { type: 'button', cls: 'link', onclick: function () { openEditor(r); } }, 'עריכה'))));
-    });
-    var done = h('button', { type: 'button', cls: 'primary big' }, 'הגשתי את המסומנות');
-    done.onclick = function () {
-      var sel = checks.filter(function (c) { return c[0].checked; }).map(function (c) { return c[1]; });
-      if (!sel.length) return;
-      done.disabled = true;
-      Promise.all(sel.map(function (r) { return patchReceipt(r.id, { status: 'submitted', submittedAt: today(), updatedAt: Date.now() }); })).then(function () {
-        progress(sel.length + ' סומנו כ"הוגש". המערכת תעקוב אחריהן.');
-      }, function () { banner('חלק מהעדכונים לא נשמרו. נסו שוב.'); done.disabled = false; });
-    };
-    b.append(done);
-  }
-
-  function summaryText(d, pol) {
-    pol = pol || policyById(d.policyId);
-    return [
-      'בקשה להחזר הוצאות' + (pol ? ' – ' + pol.name : ''),
-      'מבוטח/ת: ' + (d.member || '—'),
-      'תאריך הטיפול: ' + (fmtDate(d.date) || '—'),
-      'נותן השירות: ' + (d.provider || '—'),
-      'סוג הטיפול: ' + (d.category || '—') + (d.description ? ' – ' + d.description : ''),
-      'סכום ששולם: ' + (d.amount != null && d.amount !== '' ? money(d.amount) : '—'),
-      'מספר קבלה: ' + (d.receiptNumber || '—')
-    ].join('\n');
-  }
-  function copy(text, btn, box) {
-    var label = btn.textContent;
-    function done() { btn.textContent = 'הועתק ✓'; setTimeout(function () { btn.textContent = label; }, 1600); }
-    function fallback() { var r = document.createRange(); r.selectNodeContents(box); var s = getSelection(); s.removeAllRanges(); s.addRange(r); btn.textContent = 'סומן: העתיקו עם Ctrl+C'; }
-    try { navigator.clipboard.writeText(text).then(done, fallback); } catch (e) { fallback(); }
-  }
-
-  // ---------- editor ----------
-  var F = { provider: 'f-provider', member: 'f-member', date: 'f-date', amount: 'f-amount', receiptNumber: 'f-receipt', category: 'f-category', policyId: 'f-policy', policy2Id: 'f-policy2', description: 'f-desc', status: 'f-status', submittedAt: 'f-submitted', claimNumber: 'f-claim', refundAmount: 'f-refund', notes: 'f-notes' };
-
-  function openEditor(r, isNew) {
-    closePack();
-    S.edit = { id: r.id || null, data: Object.assign({}, r) }; delete S.edit.data.id;
-    S.delArmed = false;
-    $('ed-title').textContent = isNew ? 'קבלה חדשה' : (r.provider || 'קבלה');
-    fillPolicySelects();
-    Object.keys(F).forEach(function (k) { var v = r[k]; $(F[k]).value = v == null ? '' : v; });
-    var st = statusOf(r); $('f-status').value = st === 'reading' ? 'new' : st;
-    if (!$('f-category').value) $('f-category').value = 'אחר';
-    $('ed-delete').hidden = !!isNew; $('ed-delete').textContent = 'מחיקה';
-    edMsg('');
-    var url = r.imageId ? blobUrl(r.imageId) : null, box = $('ed-image'); box.textContent = '';
-    $('ed-open-img').hidden = !url; if (url) { $('ed-open-img').href = url; box.append(r.imageType === 'application/pdf' ? h('div', { cls: 'thumb', style: 'width:120px;height:150px' }, 'PDF') : h('img', { src: url, alt: 'צילום הקבלה' })); }
-    renderAi(r.ai);
-    refreshEditor();
-    $('editor').hidden = false; $('ed-title').focus();
-    $('editor').scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
-  function closeEditor() { S.edit = null; $('editor').hidden = true; }
-  $('ed-close').onclick = closeEditor;
-  $('btn-manual').onclick = function () { openEditor({ status: 'new', category: 'אחר', date: today() }, true); };
-
-  function renderAi(ai) {
-    var box = $('ed-ai'); box.textContent = '';
-    if (!ai || (!ai.note && !(ai.docsNeeded || []).length)) { box.hidden = true; return; }
-    box.hidden = false;
-    box.append(h('b', null, 'מה המערכת זיהתה'));
-    if (ai.note) box.append(h('p', { cls: 'small' }, ai.note));
-    if ((ai.docsNeeded || []).length) { box.append(h('span', { cls: 'small' }, 'מסמכים שבדרך כלל מבקשים:')); var ul = h('ul', { cls: 'small' }); ai.docsNeeded.forEach(function (d) { ul.append(h('li', null, d)); }); box.append(ul); }
-    box.append(h('span', { cls: 'muted small' }, 'בדקו שהפרטים נכונים לפני ההגשה.'));
-  }
-
-  function readForm() {
-    var d = Object.assign({}, S.edit.data);
-    Object.keys(F).forEach(function (k) { d[k] = $(F[k]).value.trim(); });
-    d.amount = d.amount === '' ? null : Number(d.amount);
-    d.refundAmount = d.refundAmount === '' ? null : Number(d.refundAmount);
-    return d;
-  }
-
-  function refreshEditor() {
-    if (!S.edit) return;
-    var d = readForm(), pol = policyById(d.policyId);
-    $('ed-summary').textContent = summaryText(d, pol);
-    var link = $('ed-link');
-    if (pol && /^https?:\/\//.test(pol.url || '')) { link.href = pol.url; link.textContent = 'לאתר של ' + pol.name; link.hidden = false; } else link.hidden = true;
-    var dl = deadlineNote(d); $('ed-deadline').textContent = dl; $('ed-deadline').hidden = !dl;
-    var ex = $('ed-extra'); ex.textContent = '';
-    if (d.status === 'rejected') {
-      var out = h('div', { cls: 'summary', hidden: 'hidden' });
-      var btn = h('button', { type: 'button', cls: 'primary' }, 'נסחו לי מכתב ערעור');
-      var cbtn = h('button', { type: 'button', hidden: 'hidden' }, 'העתקת המכתב');
-      cbtn.onclick = function () { copy(out.textContent, cbtn, out); };
-      btn.onclick = function () { draftAppeal(readForm(), btn, out, cbtn); };
-      ex.append(h('h3', null, 'התביעה נדחתה?'), h('p', { cls: 'small muted' }, 'כתבו בהערות מה נימוק הדחייה שקיבלתם, והמערכת תנסח מכתב ערעור מנומק.'), h('div', { cls: 'row-wrap' }, btn, cbtn), out);
-    }
-  }
-  Object.keys(F).forEach(function (k) { $(F[k]).addEventListener('input', refreshEditor); $(F[k]).addEventListener('change', refreshEditor); });
-  $('ed-copy').onclick = function () { copy($('ed-summary').textContent, $('ed-copy'), $('ed-summary')); };
-
-  function draftAppeal(d, btn, out, cbtn) {
-    if (!S.sample) { out.hidden = false; out.textContent = 'ניסוח אוטומטי לא זמין כאן.'; return; }
-    var pol = policyById(d.policyId);
-    btn.disabled = true; out.hidden = false; out.textContent = 'מנסח… (בדרך כלל 10–30 שניות)';
-    var prompt = 'Write a short, polite, firm appeal letter in Hebrew to an Israeli health insurer about a rejected refund claim. Use only the facts below; put [בסוגריים] any detail that is missing for the user to fill in. Plain text, no markdown. Start with "לכבוד מחלקת תביעות, ' + (pol ? pol.name : '[שם המבטח]') + '", include a subject line with the claim number, ask for reconsideration and a written, reasoned answer, list the attached documents, end with a signature placeholder.\n\nFacts: ' + JSON.stringify({ insured: d.member, provider: d.provider, date: fmtDate(d.date), service: d.category + (d.description ? ' – ' + d.description : ''), amount: d.amount, receipt: d.receiptNumber, claimNumber: d.claimNumber, submitted: fmtDate(d.submittedAt), rejectionNotes: d.notes });
-    S.sample(prompt, { cache: false, onText: function (u) { out.textContent = u.text; } }).then(function (r) { out.textContent = r.text; cbtn.hidden = false; }, function (e) {
-      out.textContent = e && e.text ? e.text : (e && e.code === 'not_granted' ? 'לא אישרתם למערכת להשתמש ב-Claude.' : 'הניסוח נכשל. נסו שוב.');
-    }).then(function () { btn.disabled = false; });
-  }
-
-  function save(markSubmitted) {
-    if (!S.edit || !S.recRef) { edMsg('אי אפשר לשמור כרגע: המערכת לא מחוברת לאחסון.'); return; }
-    var d = readForm();
-    if (markSubmitted) { d.status = 'submitted'; if (!d.submittedAt) d.submittedAt = today(); }
-    if (d.status === 'paid' && d.refundAmount == null && d.amount != null) d.refundAmount = d.amount;
-    if (!d.createdAt) d.createdAt = Date.now();
-    d.updatedAt = Date.now();
-    var id = S.edit.id || newId(); S.edit.id = id;
-    var btns = [$('ed-save'), $('ed-submitted')]; btns.forEach(function (b) { b.disabled = true; });
-    setReceipt(id, d).then(function () {
-      closeEditor();
-      progress(markSubmitted ? 'נשמר וסומן כ"הוגש".' : 'נשמר.');
-      setTimeout(function () { progress(''); }, 4000);
-    }, function (e) { edMsg(e && e.code === 'quota_exceeded' ? 'נגמר המקום. מחקו קבלות ישנות שכבר טופלו.' : 'השמירה נכשלה. נסו שוב.'); })
-      .then(function () { btns.forEach(function (b) { b.disabled = false; }); });
-  }
-  $('ed-save').onclick = function () { save(false); };
-  $('ed-submitted').onclick = function () { save(true); };
-  $('ed-delete').onclick = function () {
-    if (!S.delArmed) { S.delArmed = true; $('ed-delete').textContent = 'לחצו שוב כדי למחוק לצמיתות'; return; }
-    var id = S.edit && S.edit.id, img = S.edit && S.edit.data.imageId; if (!id) return;
-    var ref = S.recRef.doc(id);
-    writeDoc(ref, function () { return ref['delete'](); }).then(function () {
-      var shared = img && S.receipts.some(function (r) { return r.id !== id && r.imageId === img; });
-      if (img && !shared && S.assets) S.assets['delete'](img).catch(function () {});
-      closeEditor();
-    }, function () { edMsg('המחיקה נכשלה. נסו שוב.'); });
-  };
-
-  // ---------- boot ----------
-  renderAll();
-  Promise.all([use('db'), use('user'), use('assets'), use('sample')]).then(function (r) {
-    var db = r[0], user = r[1]; S.assets = r[2]; S.sample = r[3];
-    var lim = S.sample && S.sample.limits ? S.sample.limits().catch(function () { return null; }) : Promise.resolve(null);
-    return Promise.all([db, user ? user.id() : null, lim]);
-  }).then(function (r) {
-    var db = r[0], uid = r[1]; S.canImages = !!(r[2] && r[2].images);
-    if (!db || !uid) { S.loaded = true; renderAll(); banner('המערכת לא מחוברת לאחסון, ולכן אי אפשר לשמור קבלות. פתחו אותה מתוך חשבון Claude שלכם.'); return; }
-    S.db = db; S.uid = uid;
-    if (LOCAL) setupLocalPanel();
-    S.homeRef = db.doc('data/users/' + uid + '/home');
-    S.recRef = S.homeRef.collection('receipts');
-    S.homeRef.onSnapshot(function (s) {
-      var d = s.data() || {};
-      S.settings = { policies: Array.isArray(d.policies) ? d.policies : [], members: Array.isArray(d.members) ? d.members : [] };
-      S.settingsLoaded = true; renderAll();
-    }, function () { banner('החיבור לאחסון נקטע. רעננו את הדף.'); });
-    S.recRef.orderBy('createdAt', 'desc').limit(1000).onSnapshot(function (s) {
-      S.receipts = s.docs.map(function (d) { return Object.assign({ id: d.id }, d.data()); });
-      S.loaded = true; renderTasks(); renderList(); if (S.packPolicy) renderPack();
-    }, function () { banner('החיבור לאחסון נקטע. רעננו את הדף.'); });
-  });
-})();
-</script>
+<footer>
+  <div class="wrap">
+    <p><b>החזרי קבלות</b> · כלי אישי, חינמי ופתוח. <a href="https://github.com/Roei2p/bills" target="_blank" rel="noopener">קוד המקור ב-GitHub</a></p>
+    <p>המערכת אינה קשורה לאף קופת חולים או חברת ביטוח, והמידע בה אינו ייעוץ ביטוחי או משפטי.</p>
+  </div>
+</footer>
 </body>
 </html>
