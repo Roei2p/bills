@@ -1,6 +1,0 @@
-name = "bills-nvidia-proxy"
-main = "worker.js"
-compatibility_date = "2026-09-01"
-
-[vars]
-ALLOWED_ORIGINS = "https://bills.rlapp.net,https://roei2p.github.io"

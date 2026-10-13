@@ -94,10 +94,6 @@ label > span { font-weight: 700; }
 label > small { color: var(--muted); }
 
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 14px; }
-.engine label.opt { flex-direction: row; align-items: flex-start; gap: 10px; border: 1px solid var(--line); border-radius: 12px; padding: 12px; cursor: pointer; }
-.engine label.opt:has(input:checked) { border-color: currentColor; border-width: 2px; padding: 11px; }
-.engine input[type=radio] { width: 22px; min-height: 22px; height: 22px; margin-top: 2px; flex: none; }
-.engine small { display: block; color: var(--muted); margin-top: 2px; }
 .banner { background: var(--new-bg); color: var(--new); border-radius: 10px; padding: 12px 14px; }
 .ok { background: var(--paid-bg); color: var(--paid); border-radius: 10px; padding: 12px 14px; }
 
@@ -318,27 +314,9 @@ details.tips[open] summary { margin-bottom: 10px; }
   </section>
 
   <section class="card" id="local" hidden aria-labelledby="local-title">
-    <h2 id="local-title">קריאה אוטומטית ושמירה במכשיר הזה</h2>
-    <p class="small">הקבלות נשמרות רק בדפדפן שבמכשיר הזה. אף אחד אחר שנכנס לאתר לא רואה אותן. בחרו איך המערכת תקרא קבלות:</p>
-    <div class="engine stack" role="radiogroup" aria-label="שיטת קריאת קבלות">
-      <label class="opt"><input type="radio" name="engine" value="free"><div><b>חינם, במכשיר הזה (מומלץ)</b><small>הקבלה נקראת בתוך הדפדפן. בלי תשלום, בלי מפתח, והתמונה לא יוצאת מהמכשיר. פחות מדויק: תמיד תבדקו את הפרטים לפני הגשה.</small></div></label>
-      <label class="opt"><input type="radio" name="engine" value="nvidia"><div><b>NVIDIA, דרך שרת פרטי שלכם</b><small>מסלול החינם של NVIDIA. דורש להקים פעם אחת שרת קטן (Cloudflare, חינם), ונגיש רק עם קוד הגישה שלכם.</small></div></label>
-      <label class="opt"><input type="radio" name="engine" value="anthropic"><div><b>Claude עם מפתח API (בתשלום)</b><small>הכי מדויק. עולה כמה סנטים לקבלה.</small></div></label>
-    </div>
-    <div id="eng-nvidia" class="stack" hidden>
-      <label><span>כתובת השרת הפרטי</span><input id="n-url" type="url" dir="ltr" autocomplete="off" placeholder="https://bills-nvidia-proxy.<name>.workers.dev"></label>
-      <label><span>קוד גישה</span><input id="n-code" type="password" dir="ltr" autocomplete="off"></label>
-      <div class="row-wrap"><button type="button" id="n-save">שמירה</button></div>
-      <p class="small muted">המפתח של NVIDIA שמור רק בשרת, לא בדף. הוראות הקמה: <a href="https://github.com/Roei2p/bills/tree/main/proxy" target="_blank" rel="noopener">proxy/README</a>.</p>
-    </div>
-    <div id="eng-anthropic" class="stack" hidden>
-      <div class="row-wrap" style="flex-wrap:nowrap;align-items:end">
-        <label style="flex:1"><span>מפתח API</span><input id="k-key" type="password" dir="ltr" autocomplete="off" placeholder="sk-ant-..."></label>
-        <button type="button" id="k-save">שמירה</button>
-      </div>
-      <p class="small muted">יוצרים מפתח ב-<a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a>. המפתח נשמר רק בדפדפן הזה. אל תשמרו מפתח במחשב משותף.</p>
-    </div>
-    <p class="small muted" id="k-state" role="status"></p>
+    <h2 id="local-title">שמירה במכשיר הזה</h2>
+    <p class="small">הקבלות נשמרות רק בדפדפן שבמכשיר הזה. אף אחד אחר שנכנס לאתר לא רואה אותן.</p>
+    <div class="row-wrap" style="align-items:center"><p class="small muted" id="k-state" role="status" style="flex:1"></p><button type="button" id="omni-off" hidden>ניתוק</button></div>
     <hr class="sep">
     <h3>גיבוי</h3>
     <p class="small muted">ניקוי נתוני הדפדפן מוחק את הקבלות. שמרו גיבוי מדי פעם, ואפשר לשחזר ממנו גם במכשיר אחר.</p>
@@ -399,9 +377,8 @@ details.tips[open] summary { margin-bottom: 10px; }
   function use(name) { return LOCAL ? localUse(name) : window.claude.use(name).catch(function () { return null; }); }
   function blobUrl(id) { return LOCAL ? (L.urls[id] || '') : '/_blob/' + id; }
 
-  // ---------- local mode (outside Claude, e.g. GitHub Pages): IndexedDB storage; reading is free on-device OCR, or NVIDIA via a private proxy, or Anthropic with the viewer's own key ----------
-  var L = { docs: new Map(), urls: {}, listeners: [], ready: null, idb: null, sdk: null };
-  var SDK_URL = 'https://cdn.jsdelivr.net/npm/@anthropic-ai/sdk@0.128.0/+esm';
+  // ---------- local mode (outside Claude, e.g. GitHub Pages): IndexedDB storage; reading via the user's own OmniRoute when connected, else free on-device OCR ----------
+  var L = { docs: new Map(), urls: {}, listeners: [], ready: null, idb: null };
   function lsGet(k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } }
   function lsSet(k, v) { try { if (v) localStorage.setItem(k, v); else localStorage.removeItem(k); } catch (e) {} }
   function idbReq(r) { return new Promise(function (res, rej) { r.onsuccess = function () { res(r.result); }; r.onerror = function () { rej(r.error); }; }); }
@@ -452,65 +429,52 @@ details.tips[open] summary { margin-bottom: 10px; }
     return q;
   }
   function b64(blob) { return new Promise(function (res, rej) { var r = new FileReader(); r.onload = function () { res(String(r.result).split(',')[1]); }; r.onerror = rej; r.readAsDataURL(blob); }); }
-  function apiClient() {
-    if (!L.sdk) L.sdk = import(SDK_URL).then(function (m) { var A = m['default'] || m.Anthropic; return new A({ apiKey: lsGet('bills.apiKey'), dangerouslyAllowBrowser: true }); });
-    return L.sdk;
+  // Smart reading goes through OmniRoute running on the user's own computer (free providers only).
+  // It is switched on once by opening the app with #omni (optionally #omni=<key>&url=<base>); nothing to configure in the UI.
+  var OMNI_DEFAULT = 'http://localhost:20128';
+  function omniOn() { return lsGet('bills.omni') === '1'; }
+  function omniBase() { return (lsGet('bills.omniUrl') || OMNI_DEFAULT).replace(/\/+$/, '').replace(/\/v1$/, ''); }
+  function takeSetupLink() {
+    var m = /^#omni(?:=([^&]*))?(?:&url=(.*))?$/.exec(location.hash || '');
+    if (!m) return;
+    lsSet('bills.omni', '1'); lsSet('bills.omniKey', m[1] ? decodeURIComponent(m[1]) : ''); lsSet('bills.omniUrl', m[2] ? decodeURIComponent(m[2]) : '');
+    history.replaceState(null, '', location.pathname + location.search);
   }
-  function engine() { var e = lsGet('bills.engine'); return e === 'nvidia' || e === 'anthropic' ? e : 'free'; }
-  function aiReady() { var e = engine(); return e === 'anthropic' ? !!lsGet('bills.apiKey') : e === 'nvidia' ? !!(lsGet('bills.nvUrl') && lsGet('bills.nvCode')) : false; }
-  // NVIDIA's hosted vision models take inline images only up to ~180KB, so re-encode smaller until it fits.
+  // Re-encode to a compact JPEG so any routed provider accepts the image inline.
   function smallJpegB64(blob) {
     return createImageBitmap(blob).then(function (bmp) {
-      var dims = [1400, 1200, 1000, 850, 700], qs = [0.7, 0.6, 0.55, 0.5, 0.45], i = 0;
+      var dims = [1600, 1400, 1200, 1000, 800], qs = [0.75, 0.7, 0.65, 0.6, 0.55], i = 0;
       function attempt() {
         var sc = Math.min(1, dims[i] / Math.max(bmp.width, bmp.height)), c = document.createElement('canvas');
         c.width = Math.round(bmp.width * sc); c.height = Math.round(bmp.height * sc);
         c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
         var d = c.toDataURL('image/jpeg', qs[i]).split(',')[1];
-        if (d.length < 175000 || i === dims.length - 1) return d;
+        if (d.length < 400000 || i === dims.length - 1) return d;
         i++; return attempt();
       }
       return attempt();
     });
   }
-  function askNvidia(prompt, images) {
-    var base = lsGet('bills.nvUrl').replace(/\/+$/, ''), code = lsGet('bills.nvCode');
-    if (!base || !code) return Promise.reject({ code: 'not_granted' });
+  function askAI(prompt, images) {
+    if (!omniOn()) return Promise.reject({ code: 'not_granted' });
+    var key = lsGet('bills.omniKey'), headers = { 'content-type': 'application/json' };
+    if (key) headers.authorization = 'Bearer ' + key;
+    var ctl = new AbortController(), timer = setTimeout(function () { ctl.abort(); }, 90000);
     return Promise.all((images || []).slice(0, 1).map(smallJpegB64)).then(function (imgs) {
-      var content = [{ type: 'text', text: prompt }].concat(imgs.map(function (d) { return { type: 'image_url', image_url: { url: 'data:image/jpeg;base64,' + d } }; }));
-      return fetch(base + '/v1/chat/completions', {
-        method: 'POST', headers: { 'content-type': 'application/json', 'x-access-code': code },
-        body: JSON.stringify({ model: 'meta/llama-3.2-90b-vision-instruct', max_tokens: 1500, temperature: 0.1, messages: [{ role: 'user', content: content }] })
+      var content = imgs.length ? [{ type: 'text', text: prompt }].concat(imgs.map(function (d) { return { type: 'image_url', image_url: { url: 'data:image/jpeg;base64,' + d } }; })) : prompt;
+      return fetch(omniBase() + '/v1/chat/completions', {
+        method: 'POST', headers: headers, signal: ctl.signal,
+        body: JSON.stringify({ model: imgs.length ? 'auto/vision:free' : 'auto/chat:free', max_tokens: 2000, temperature: 0.1, stream: false, messages: [{ role: 'user', content: content }] })
       });
     }).then(function (res) {
-      if (!res.ok) { var st = res.status; throw { code: st === 401 || st === 403 ? 'bad_key' : st === 429 ? 'rate_limited' : st === 413 || st === 400 ? 'image_rejected' : 'upstream_error' }; }
+      if (!res.ok) throw { code: res.status === 401 || res.status === 403 ? 'bad_key' : res.status === 429 ? 'rate_limited' : 'upstream_error' };
       return res.json();
-    }, function (e) { throw e && e.code ? e : { code: 'upstream_error' }; }).then(function (j) {
+    }, function (e) { throw e && e.code ? e : { code: 'offline' }; }).then(function (j) {
       var t = j && j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content;
+      if (Array.isArray(t)) t = t.map(function (p) { return p && p.text || ''; }).join('');
       if (!t) throw { code: 'upstream_error' };
       return String(t);
-    });
-  }
-  function askClaude(prompt, images) {
-    if (engine() === 'nvidia') return askNvidia(prompt, images);
-    if (engine() !== 'anthropic' || !lsGet('bills.apiKey')) return Promise.reject({ code: 'not_granted' });
-    return Promise.all((images || []).map(function (b) { return b64(b).then(function (data) { return { type: 'image', source: { type: 'base64', media_type: b.type || 'image/jpeg', data: data } }; }); }))
-      .then(function (imgs) {
-        return apiClient().then(function (c) {
-          return c.beta.messages.create({
-            model: 'claude-opus-5-5', max_tokens: 16000, output_config: { effort: 'low' },
-            betas: ['server-side-fallback-2026-07-01'], fallbacks: 'default',
-            messages: [{ role: 'user', content: imgs.concat([{ type: 'text', text: prompt }]) }]
-          });
-        });
-      }).then(function (r) {
-        if (r.stop_reason === 'refusal') throw { code: 'refused' };
-        return r.content.filter(function (b) { return b.type === 'text'; }).map(function (b) { return b.text; }).join('');
-      }, function (e) {
-        if (e && e.code) throw e;
-        var st = e && e.status;
-        throw { code: st === 401 || st === 403 ? 'bad_key' : st === 429 ? 'rate_limited' : st === 400 ? 'image_rejected' : 'upstream_error' };
-      });
+    }).finally(function () { clearTimeout(timer); });
   }
   function parseJsonLoose(t) {
     try { return JSON.parse(t); } catch (e) {}
@@ -519,11 +483,11 @@ details.tips[open] summary { margin-bottom: 10px; }
     throw { code: 'invalid_json' };
   }
   function localSample(input, opts) {
-    return askClaude(String(input), opts && opts.images).then(function (text) { if (opts && opts.onText) opts.onText({ text: text, delta: text }); return { text: text, truncated: false }; });
+    return askAI(String(input), opts && opts.images).then(function (text) { if (opts && opts.onText) opts.onText({ text: text, delta: text }); return { text: text, truncated: false }; });
   }
-  localSample.json = function (input, opts) { return askClaude(String(input), opts && opts.images).then(parseJsonLoose); };
-  // Free mode always reads images (on-device OCR), so images are always "available" locally.
-  localSample.limits = function () { return Promise.resolve(engine() === 'free' || aiReady() ? { maxPromptBytes: 262144, images: { maxCount: 5, maxInputBytes: 20000000, mediaTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'] } } : { maxPromptBytes: 262144 }); };
+  localSample.json = function (input, opts) { return askAI(String(input), opts && opts.images).then(parseJsonLoose); };
+  // Locally, receipts are always readable: by OmniRoute when connected, otherwise by on-device OCR.
+  localSample.limits = function () { return Promise.resolve({ maxPromptBytes: 262144, images: { maxCount: 5, maxInputBytes: 20000000, mediaTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'] } }); };
   function localUse(name) {
     if (name === 'sample') return Promise.resolve(localSample);
     if (name === 'user') return Promise.resolve({ id: function () { return Promise.resolve('local'); } });
@@ -543,23 +507,11 @@ details.tips[open] summary { margin-bottom: 10px; }
   function setupLocalPanel() {
     $('local').hidden = false;
     function state() {
-      var e = engine(), ok = e === 'free' || aiReady();
-      document.querySelectorAll('input[name=engine]').forEach(function (r) { r.checked = r.value === e; });
-      $('eng-nvidia').hidden = e !== 'nvidia'; $('eng-anthropic').hidden = e !== 'anthropic';
-      $('n-url').value = lsGet('bills.nvUrl');
-      S.canImages = ok;
-      $('k-state').textContent = e === 'free' ? '✓ קריאה חינמית במכשיר פעילה. בפעם הראשונה הטעינה לוקחת כחצי דקה.' : ok ? '✓ קריאה אוטומטית פעילה.' : e === 'nvidia' ? 'חסרים כתובת שרת וקוד גישה. עד אז תמלאו ידנית.' : 'אין מפתח: עד אז תמלאו ידנית.';
-      banner(ok ? '' : 'קריאה אוטומטית לא מוגדרת. בחרו "חינם, במכשיר הזה" בחלק "קריאה אוטומטית" למטה, או מלאו את הפרטים ידנית.');
+      S.canImages = true;
+      $('k-state').textContent = omniOn() ? '✓ קריאה חכמה דרך OmniRoute במחשב שלכם. אם הוא כבוי, הקבלות נקראות בקריאה הבסיסית.' : '✓ הקבלות נקראות בחינם, בתוך הדפדפן.';
+      $('omni-off').hidden = !omniOn();
     }
-    document.querySelectorAll('input[name=engine]').forEach(function (r) { r.onchange = function () { lsSet('bills.engine', r.value === 'free' ? '' : r.value); state(); }; });
-    $('k-save').onclick = function () {
-      var v = $('k-key').value.trim(); lsSet('bills.apiKey', v); $('k-key').value = ''; L.sdk = null; state();
-    };
-    $('n-save').onclick = function () {
-      var u = $('n-url').value.trim(), c = $('n-code').value.trim();
-      if (u && !/^https:\/\//.test(u)) { $('k-state').textContent = 'הכתובת צריכה להתחיל ב-https://'; return; }
-      lsSet('bills.nvUrl', u); if (c) lsSet('bills.nvCode', c); $('n-code').value = ''; state();
-    };
+    $('omni-off').onclick = function () { ['bills.omni', 'bills.omniKey', 'bills.omniUrl'].forEach(function (k) { lsSet(k, ''); }); state(); };
     $('bk-export').onclick = function () {
       var out = { app: 'bills', version: 1, exportedAt: new Date().toISOString(), docs: {}, blobs: {} }, ids = Object.keys(L.urls);
       L.docs.forEach(function (v, k) { out.docs[k] = v; });
@@ -789,6 +741,7 @@ details.tips[open] summary { margin-bottom: 10px; }
   };
   $('file').onchange = function () {
     var files = Array.prototype.slice.call($('file').files || []);
+    $('file').value = '';
     if (!files.length) return;
     processFiles(files);
   };
@@ -909,7 +862,13 @@ details.tips[open] summary { margin-bottom: 10px; }
   }
 
   function readReceipt(blob) {
-    if (LOCAL && engine() === 'free') return ocrReceipt(blob);
+    if (!LOCAL) return aiReadReceipt(blob);
+    if (!omniOn()) return ocrReceipt(blob);
+    return aiReadReceipt(blob).catch(function () {
+      return ocrReceipt(blob).then(function (f) { f.ai.note = 'OmniRoute לא ענה (אולי המחשב כבוי), אז הקבלה נקראה בקריאה הבסיסית. ' + f.ai.note; return f; });
+    });
+  }
+  function aiReadReceipt(blob) {
     var pols = S.settings.policies.map(function (p) { return { id: p.id, name: p.name, kind: KINDS[p.kind] || p.kind, coverage: p.coverage || '' }; });
     var prompt = [
       'The image is a photo of a receipt (usually Israeli, usually Hebrew) that the user wants a refund for from health insurance.',
@@ -935,7 +894,7 @@ details.tips[open] summary { margin-bottom: 10px; }
       out.status = out.amount != null && out.provider && out.date && out.policyId ? 'ready' : 'new';
       return out;
     }, function (e) {
-      throw ({ bad_key: 'מפתח ה-API לא תקין. בדקו אותו בחלק "קריאה אוטומטית". בינתיים מלאו ידנית.', not_granted: LOCAL ? 'אין מפתח API, ולכן הקבלה לא נקראה. מלאו את הפרטים ידנית.' : 'לא אישרתם למערכת לקרוא קבלות. מלאו את הפרטים ידנית.', rate_limited: 'יותר מדי בקשות כרגע. מלאו ידנית או העלו שוב מאוחר יותר.', refused: 'לא הצלחנו לקרוא את התמונה. מלאו את הפרטים ידנית.', image_rejected: 'התמונה לא נתמכת. צלמו שוב (JPG או PNG).', invalid_json: 'הקריאה לא הצליחה. מלאו ידנית או צלמו שוב.' }[e && e.code] || 'הקריאה האוטומטית נכשלה. מלאו את הפרטים ידנית.');
+      throw ({ not_granted: 'לא אישרתם למערכת לקרוא קבלות. מלאו את הפרטים ידנית.', rate_limited: 'יותר מדי בקשות כרגע. מלאו ידנית או העלו שוב מאוחר יותר.', refused: 'לא הצלחנו לקרוא את התמונה. מלאו את הפרטים ידנית.', image_rejected: 'התמונה לא נתמכת. צלמו שוב (JPG או PNG).', invalid_json: 'הקריאה לא הצליחה. מלאו ידנית או צלמו שוב.' }[e && e.code] || 'הקריאה האוטומטית נכשלה. מלאו את הפרטים ידנית.');
     });
   }
 
@@ -1143,11 +1102,9 @@ details.tips[open] summary { margin-bottom: 10px; }
   function draftAppeal(d, btn, out, cbtn) {
     if (!S.sample) { out.hidden = false; out.textContent = 'ניסוח אוטומטי לא זמין כאן.'; return; }
     var pol = policyById(d.policyId);
-    if (LOCAL && !aiReady()) {
-      // Free mode: a ready-made template filled from the receipt, no AI needed.
-      var v = function (x, ph) { return x ? String(x) : '[' + ph + ']'; };
-      out.hidden = false; cbtn.hidden = false;
-      out.textContent = ['לכבוד מחלקת תביעות, ' + v(pol && pol.name, 'שם המבטח'), '',
+    // Ready-made template filled from the receipt: used without OmniRoute, or when it does not answer.
+    var v = function (x, ph) { return x ? String(x) : '[' + ph + ']'; };
+    var tpl = ['לכבוד מחלקת תביעות, ' + v(pol && pol.name, 'שם המבטח'), '',
         'הנדון: ערעור על דחיית תביעה מס\' ' + v(d.claimNumber, 'מספר תביעה'), '',
         'שלום רב,', '',
         'ביום ' + v(d.submittedAt && fmtDate(d.submittedAt), 'תאריך הגשה') + ' הגשתי תביעה להחזר עבור ' + v(d.category, 'סוג השירות') + (d.description ? ' (' + d.description + ')' : '') + ' שקיבל/ה ' + v(d.member, 'שם המבוטח') + ' אצל ' + v(d.provider, 'נותן השירות') + ' בתאריך ' + v(d.date && fmtDate(d.date), 'תאריך הטיפול') + ', בסך ' + v(d.amount != null && d.amount !== '' ? d.amount + ' ש"ח' : '', 'סכום') + ' (קבלה מס\' ' + v(d.receiptNumber, 'מספר קבלה') + ').',
@@ -1155,11 +1112,11 @@ details.tips[open] summary { margin-bottom: 10px; }
         'אבקש לקבל תשובה מנומקת בכתב, כולל הסעיף בפוליסה שעליו נשענת הדחייה, אם תעמדו עליה.', '',
         'מצורפים: קבלה מקורית, ' + v('', 'הפניה / סיכום ביקור / מסמכים נוספים') + ', מכתב הדחייה.', '',
         'בברכה,', '[שם מלא]', '[תעודת זהות]', '[טלפון]'].join('\n');
-      return;
-    }
+    if (LOCAL && !omniOn()) { out.hidden = false; cbtn.hidden = false; out.textContent = tpl; return; }
     btn.disabled = true; out.hidden = false; out.textContent = 'מנסח… (בדרך כלל 10–30 שניות)';
     var prompt = 'Write a short, polite, firm appeal letter in Hebrew to an Israeli health insurer about a rejected refund claim. Use only the facts below; put [בסוגריים] any detail that is missing for the user to fill in. Plain text, no markdown. Start with "לכבוד מחלקת תביעות, ' + (pol ? pol.name : '[שם המבטח]') + '", include a subject line with the claim number, ask for reconsideration and a written, reasoned answer, list the attached documents, end with a signature placeholder.\n\nFacts: ' + JSON.stringify({ insured: d.member, provider: d.provider, date: fmtDate(d.date), service: d.category + (d.description ? ' – ' + d.description : ''), amount: d.amount, receipt: d.receiptNumber, claimNumber: d.claimNumber, submitted: fmtDate(d.submittedAt), rejectionNotes: d.notes });
     S.sample(prompt, { cache: false, onText: function (u) { out.textContent = u.text; } }).then(function (r) { out.textContent = r.text; cbtn.hidden = false; }, function (e) {
+      if (LOCAL) { out.textContent = tpl; cbtn.hidden = false; return; }
       out.textContent = e && e.text ? e.text : (e && e.code === 'not_granted' ? 'לא אישרתם למערכת להשתמש ב-Claude.' : 'הניסוח נכשל. נסו שוב.');
     }).then(function () { btn.disabled = false; });
   }
@@ -1196,7 +1153,11 @@ details.tips[open] summary { margin-bottom: 10px; }
 
   // ---------- boot ----------
   renderAll();
-  if (LOCAL) $('topnav').hidden = false;
+  if (LOCAL) {
+    $('topnav').hidden = false; takeSetupLink();
+    // The setup link may be opened in a tab that already shows the app.
+    window.addEventListener('hashchange', function () { if (/^#omni/.test(location.hash)) { takeSetupLink(); location.reload(); } });
+  }
   Promise.all([use('db'), use('user'), use('assets'), use('sample'), use('downloads')]).then(function (r) {
     var db = r[0], user = r[1]; S.assets = r[2]; S.sample = r[3]; S.downloads = r[4];
     var lim = S.sample && S.sample.limits ? S.sample.limits().catch(function () { return null; }) : Promise.resolve(null);
