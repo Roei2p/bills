@@ -769,11 +769,11 @@ details.tips[open] summary { margin-bottom: 10px; }
       return S.assets.upload(blob, { type: isPdf ? 'application/pdf' : (blob.type || 'image/jpeg') }).then(function (res) {
         var base = { createdAt: created, updatedAt: created, imageId: res.id, imageType: res.contentType, status: 'reading', category: 'אחר' };
         return setReceipt(id, base).then(function () {
-          if (isPdf || !S.sample || !S.canImages) {
-            var why = isPdf ? 'קובץ PDF לא נקרא אוטומטית. מלאו את הפרטים.' : 'קריאה אוטומטית לא זמינה כאן. מלאו את הפרטים.';
-            return patchReceipt(id, { status: 'new', ai: { note: why, docsNeeded: [] } }).then(function () { return true; });
+          if (!isPdf && (!S.sample || !S.canImages)) {
+            return patchReceipt(id, { status: 'new', ai: { note: 'קריאה אוטומטית לא זמינה כאן. מלאו את הפרטים.', docsNeeded: [] } }).then(function () { return true; });
           }
-          return readReceipt(blob).then(function (fields) {
+          var prep = isPdf ? pdfPrepare(file).catch(function () { throw 'לא הצלחנו לפתוח את קובץ ה-PDF. מלאו את הפרטים ידנית.'; }) : Promise.resolve({ image: blob, text: '' });
+          return prep.then(function (p) { return readReceipt(p.image, p.text); }).then(function (fields) {
             return patchReceipt(id, fields).then(function () { return true; });
           }, function (msg) {
             return patchReceipt(id, { status: 'new', ai: { note: msg, docsNeeded: [] } }).then(function () { return true; });
@@ -840,8 +840,52 @@ details.tips[open] summary { margin-bottom: 10px; }
     out.category = cat ? cat[0] : 'אחר';
     return out;
   }
-  function ocrReceipt(blob) {
-    return ocrWorker().then(function (w) { return w.recognize(blob); }).then(function (r) {
+  // ---------- PDF receipts: pdf.js renders page 1 to an image and pulls its text layer ----------
+  var PDFJS_URL = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js', PDFJS_WORKER = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  function pdfLib() {
+    if (!L.pdf) {
+      L.pdf = new Promise(function (res, rej) {
+        if (window.pdfjsLib) return res(window.pdfjsLib);
+        var s = document.createElement('script'); s.src = PDFJS_URL; s.onerror = rej;
+        s.onload = function () { window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER; res(window.pdfjsLib); };
+        document.head.append(s);
+      });
+      L.pdf.catch(function () { L.pdf = null; });
+    }
+    return L.pdf;
+  }
+  // Some Hebrew PDFs store text in visual (reversed) order; flip it back, keeping numbers intact.
+  function unreverse(s) { return s.split('').reverse().join('').replace(/[\d.,\/:\-]+/g, function (m) { return m.split('').reverse().join(''); }); }
+  function pdfLines(items) {
+    var all = items.map(function (it) { return it.str; }).join(' ');
+    var fwd = (all.match(/קבלה|תאריך|לתשלום|חשבונית|סכום|שולם/g) || []).length, back = (all.match(/הלבק|ךיראת|םולשתל|תינובשח|םוכס|םלוש/g) || []).length;
+    var flip = back > fwd, rows = [];
+    items.forEach(function (it) {
+      if (!it.str || !it.str.trim()) return;
+      var y = Math.round(it.transform[5] / 3), row = rows.find(function (r) { return Math.abs(r.y - y) <= 1; });
+      if (!row) { row = { y: y, parts: [] }; rows.push(row); }
+      row.parts.push({ x: it.transform[4], s: flip ? unreverse(it.str) : it.str });
+    });
+    rows.sort(function (a, b) { return b.y - a.y; });
+    return rows.map(function (r) { return r.parts.sort(function (a, b) { return b.x - a.x; }).map(function (p) { return p.s; }).join(' ').replace(/\s+/g, ' ').trim(); }).join('\n');
+  }
+  function pdfPrepare(file) {
+    return pdfLib().then(function (lib) { return file.arrayBuffer().then(function (buf) { return lib.getDocument({ data: buf, isEvalSupported: false }).promise; }); })
+      .then(function (doc) { return doc.getPage(1); })
+      .then(function (page) {
+        var v1 = page.getViewport({ scale: 1 }), vp = page.getViewport({ scale: Math.min(3, 2000 / Math.max(v1.width, v1.height)) });
+        var c = document.createElement('canvas'); c.width = Math.round(vp.width); c.height = Math.round(vp.height);
+        var ctx = c.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height);
+        return page.render({ canvasContext: ctx, viewport: vp }).promise.then(function () { return page.getTextContent(); }).then(function (tc) {
+          var text = pdfLines(tc.items);
+          return new Promise(function (res) { c.toBlob(function (b) { res({ image: b, text: text }); }, 'image/jpeg', 0.88); });
+        });
+      });
+  }
+
+  function ocrReceipt(blob, pdfText) {
+    var src = pdfText ? Promise.resolve({ data: { text: pdfText } }) : ocrWorker().then(function (w) { return w.recognize(blob); });
+    return src.then(function (r) {
       var text = (r && r.data && r.data.text) || '', f = parseOcr(text);
       if (!text.trim()) throw { code: 'refused' };
       var pols = S.settings.policies, kup = pols.filter(function (p) { return p.kind === 'kupah'; }), prv = pols.filter(function (p) { return p.kind !== 'kupah'; });
@@ -861,11 +905,15 @@ details.tips[open] summary { margin-bottom: 10px; }
     });
   }
 
-  function readReceipt(blob) {
-    if (!LOCAL) return aiReadReceipt(blob);
-    if (!omniOn()) return ocrReceipt(blob);
+  function readReceipt(blob, pdfText) {
+    var usable = pdfText && (pdfText.match(/[א-ת]/g) || []).length >= 10 && /\d/.test(pdfText);
+    var basic = function () {
+      return ocrReceipt(blob, usable ? pdfText : '').then(function (f) { if (usable) f.ai.note = f.ai.note.replace('נקרא בחינם במכשיר.', 'נקרא מהטקסט שבקובץ ה-PDF.'); return f; });
+    };
+    if (!LOCAL) return S.canImages ? aiReadReceipt(blob) : basic();
+    if (!omniOn()) return basic();
     return aiReadReceipt(blob).catch(function () {
-      return ocrReceipt(blob).then(function (f) { f.ai.note = 'OmniRoute לא ענה (אולי המחשב כבוי), אז הקבלה נקראה בקריאה הבסיסית. ' + f.ai.note; return f; });
+      return basic().then(function (f) { f.ai.note = 'OmniRoute לא ענה (אולי המחשב כבוי), אז הקבלה נקראה בקריאה הבסיסית. ' + f.ai.note; return f; });
     });
   }
   function aiReadReceipt(blob) {
