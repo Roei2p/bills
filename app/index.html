@@ -77,6 +77,10 @@ label > span { font-weight: 700; }
 label > small { color: var(--muted); }
 
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 14px; }
+.engine label.opt { flex-direction: row; align-items: flex-start; gap: 10px; border: 1px solid var(--line); border-radius: 12px; padding: 12px; cursor: pointer; }
+.engine label.opt:has(input:checked) { border-color: currentColor; border-width: 2px; padding: 11px; }
+.engine input[type=radio] { width: 22px; min-height: 22px; height: 22px; margin-top: 2px; flex: none; }
+.engine small { display: block; color: var(--muted); margin-top: 2px; }
 .banner { background: var(--new-bg); color: var(--new); border-radius: 10px; padding: 12px 14px; }
 .ok { background: var(--paid-bg); color: var(--paid); border-radius: 10px; padding: 12px 14px; }
 
@@ -137,7 +141,6 @@ details.tips[open] summary { margin-bottom: 10px; }
 .tips section { display: flex; flex-direction: column; gap: 4px; padding-block: 8px; border-top: 1px solid var(--line); }
 @media (prefers-reduced-motion: no-preference) { .panel-in { animation: rise .18s ease-out; } @keyframes rise { from { transform: translateY(8px); opacity: .6; } } }
 </style>
-
 </head>
 <body>
 <a class="skip" href="#todo">דילוג למה שצריך לעשות עכשיו</a>
@@ -299,13 +302,26 @@ details.tips[open] summary { margin-bottom: 10px; }
 
   <section class="card" id="local" hidden aria-labelledby="local-title">
     <h2 id="local-title">קריאה אוטומטית ושמירה במכשיר הזה</h2>
-    <p class="small">בגרסה הזו הקבלות נשמרות רק בדפדפן שבמכשיר הזה. כדי שהמערכת תקרא קבלות לבד, היא צריכה מפתח API של Anthropic. המפתח נשמר רק בדפדפן שלכם ונשלח רק ל-Anthropic. קריאת קבלה עולה בדרך כלל כמה סנטים.</p>
-    <div class="row-wrap" style="flex-wrap:nowrap;align-items:end">
-      <label style="flex:1"><span>מפתח API</span><input id="k-key" type="password" dir="ltr" autocomplete="off" placeholder="sk-ant-..."></label>
-      <button type="button" id="k-save">שמירה</button>
+    <p class="small">הקבלות נשמרות רק בדפדפן שבמכשיר הזה. אף אחד אחר שנכנס לאתר לא רואה אותן. בחרו איך המערכת תקרא קבלות:</p>
+    <div class="engine stack" role="radiogroup" aria-label="שיטת קריאת קבלות">
+      <label class="opt"><input type="radio" name="engine" value="free"><div><b>חינם, במכשיר הזה (מומלץ)</b><small>הקבלה נקראת בתוך הדפדפן. בלי תשלום, בלי מפתח, והתמונה לא יוצאת מהמכשיר. פחות מדויק: תמיד תבדקו את הפרטים לפני הגשה.</small></div></label>
+      <label class="opt"><input type="radio" name="engine" value="nvidia"><div><b>NVIDIA, דרך שרת פרטי שלכם</b><small>מסלול החינם של NVIDIA. דורש להקים פעם אחת שרת קטן (Cloudflare, חינם), ונגיש רק עם קוד הגישה שלכם.</small></div></label>
+      <label class="opt"><input type="radio" name="engine" value="anthropic"><div><b>Claude עם מפתח API (בתשלום)</b><small>הכי מדויק. עולה כמה סנטים לקבלה.</small></div></label>
     </div>
-    <p class="small muted" id="k-state"></p>
-    <p class="small muted">יוצרים מפתח ב-<a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a>. אל תשמרו מפתח במחשב משותף.</p>
+    <div id="eng-nvidia" class="stack" hidden>
+      <label><span>כתובת השרת הפרטי</span><input id="n-url" type="url" dir="ltr" autocomplete="off" placeholder="https://bills-nvidia-proxy.<name>.workers.dev"></label>
+      <label><span>קוד גישה</span><input id="n-code" type="password" dir="ltr" autocomplete="off"></label>
+      <div class="row-wrap"><button type="button" id="n-save">שמירה</button></div>
+      <p class="small muted">המפתח של NVIDIA שמור רק בשרת, לא בדף. הוראות הקמה: <a href="https://github.com/Roei2p/bills/tree/main/proxy" target="_blank" rel="noopener">proxy/README</a>.</p>
+    </div>
+    <div id="eng-anthropic" class="stack" hidden>
+      <div class="row-wrap" style="flex-wrap:nowrap;align-items:end">
+        <label style="flex:1"><span>מפתח API</span><input id="k-key" type="password" dir="ltr" autocomplete="off" placeholder="sk-ant-..."></label>
+        <button type="button" id="k-save">שמירה</button>
+      </div>
+      <p class="small muted">יוצרים מפתח ב-<a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a>. המפתח נשמר רק בדפדפן הזה. אל תשמרו מפתח במחשב משותף.</p>
+    </div>
+    <p class="small muted" id="k-state" role="status"></p>
     <hr class="sep">
     <h3>גיבוי</h3>
     <p class="small muted">ניקוי נתוני הדפדפן מוחק את הקבלות. שמרו גיבוי מדי פעם, ואפשר לשחזר ממנו גם במכשיר אחר.</p>
@@ -366,7 +382,7 @@ details.tips[open] summary { margin-bottom: 10px; }
   function use(name) { return LOCAL ? localUse(name) : window.claude.use(name).catch(function () { return null; }); }
   function blobUrl(id) { return LOCAL ? (L.urls[id] || '') : '/_blob/' + id; }
 
-  // ---------- local mode (outside Claude, e.g. GitHub Pages): IndexedDB storage + Anthropic API with the viewer's own key ----------
+  // ---------- local mode (outside Claude, e.g. GitHub Pages): IndexedDB storage; reading is free on-device OCR, or NVIDIA via a private proxy, or Anthropic with the viewer's own key ----------
   var L = { docs: new Map(), urls: {}, listeners: [], ready: null, idb: null, sdk: null };
   var SDK_URL = 'https://cdn.jsdelivr.net/npm/@anthropic-ai/sdk@0.128.0/+esm';
   function lsGet(k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } }
@@ -423,8 +439,44 @@ details.tips[open] summary { margin-bottom: 10px; }
     if (!L.sdk) L.sdk = import(SDK_URL).then(function (m) { var A = m['default'] || m.Anthropic; return new A({ apiKey: lsGet('bills.apiKey'), dangerouslyAllowBrowser: true }); });
     return L.sdk;
   }
+  function engine() { var e = lsGet('bills.engine'); return e === 'nvidia' || e === 'anthropic' ? e : 'free'; }
+  function aiReady() { var e = engine(); return e === 'anthropic' ? !!lsGet('bills.apiKey') : e === 'nvidia' ? !!(lsGet('bills.nvUrl') && lsGet('bills.nvCode')) : false; }
+  // NVIDIA's hosted vision models take inline images only up to ~180KB, so re-encode smaller until it fits.
+  function smallJpegB64(blob) {
+    return createImageBitmap(blob).then(function (bmp) {
+      var dims = [1400, 1200, 1000, 850, 700], qs = [0.7, 0.6, 0.55, 0.5, 0.45], i = 0;
+      function attempt() {
+        var sc = Math.min(1, dims[i] / Math.max(bmp.width, bmp.height)), c = document.createElement('canvas');
+        c.width = Math.round(bmp.width * sc); c.height = Math.round(bmp.height * sc);
+        c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
+        var d = c.toDataURL('image/jpeg', qs[i]).split(',')[1];
+        if (d.length < 175000 || i === dims.length - 1) return d;
+        i++; return attempt();
+      }
+      return attempt();
+    });
+  }
+  function askNvidia(prompt, images) {
+    var base = lsGet('bills.nvUrl').replace(/\/+$/, ''), code = lsGet('bills.nvCode');
+    if (!base || !code) return Promise.reject({ code: 'not_granted' });
+    return Promise.all((images || []).slice(0, 1).map(smallJpegB64)).then(function (imgs) {
+      var content = [{ type: 'text', text: prompt }].concat(imgs.map(function (d) { return { type: 'image_url', image_url: { url: 'data:image/jpeg;base64,' + d } }; }));
+      return fetch(base + '/v1/chat/completions', {
+        method: 'POST', headers: { 'content-type': 'application/json', 'x-access-code': code },
+        body: JSON.stringify({ model: 'meta/llama-3.2-90b-vision-instruct', max_tokens: 1500, temperature: 0.1, messages: [{ role: 'user', content: content }] })
+      });
+    }).then(function (res) {
+      if (!res.ok) { var st = res.status; throw { code: st === 401 || st === 403 ? 'bad_key' : st === 429 ? 'rate_limited' : st === 413 || st === 400 ? 'image_rejected' : 'upstream_error' }; }
+      return res.json();
+    }, function (e) { throw e && e.code ? e : { code: 'upstream_error' }; }).then(function (j) {
+      var t = j && j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content;
+      if (!t) throw { code: 'upstream_error' };
+      return String(t);
+    });
+  }
   function askClaude(prompt, images) {
-    if (!lsGet('bills.apiKey')) return Promise.reject({ code: 'not_granted' });
+    if (engine() === 'nvidia') return askNvidia(prompt, images);
+    if (engine() !== 'anthropic' || !lsGet('bills.apiKey')) return Promise.reject({ code: 'not_granted' });
     return Promise.all((images || []).map(function (b) { return b64(b).then(function (data) { return { type: 'image', source: { type: 'base64', media_type: b.type || 'image/jpeg', data: data } }; }); }))
       .then(function (imgs) {
         return apiClient().then(function (c) {
@@ -453,7 +505,8 @@ details.tips[open] summary { margin-bottom: 10px; }
     return askClaude(String(input), opts && opts.images).then(function (text) { if (opts && opts.onText) opts.onText({ text: text, delta: text }); return { text: text, truncated: false }; });
   }
   localSample.json = function (input, opts) { return askClaude(String(input), opts && opts.images).then(parseJsonLoose); };
-  localSample.limits = function () { return Promise.resolve(lsGet('bills.apiKey') ? { maxPromptBytes: 262144, images: { maxCount: 5, maxInputBytes: 20000000, mediaTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'] } } : { maxPromptBytes: 262144 }); };
+  // Free mode always reads images (on-device OCR), so images are always "available" locally.
+  localSample.limits = function () { return Promise.resolve(engine() === 'free' || aiReady() ? { maxPromptBytes: 262144, images: { maxCount: 5, maxInputBytes: 20000000, mediaTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'] } } : { maxPromptBytes: 262144 }); };
   function localUse(name) {
     if (name === 'sample') return Promise.resolve(localSample);
     if (name === 'user') return Promise.resolve({ id: function () { return Promise.resolve('local'); } });
@@ -473,12 +526,22 @@ details.tips[open] summary { margin-bottom: 10px; }
   function setupLocalPanel() {
     $('local').hidden = false;
     function state() {
-      var has = !!lsGet('bills.apiKey');
-      $('k-state').textContent = has ? '✓ קריאה אוטומטית פעילה.' : 'אין מפתח: את פרטי הקבלות תמלאו ידנית.';
-      if (!has) banner('כדי שהמערכת תקרא קבלות לבד, הוסיפו מפתח API בחלק "קריאה אוטומטית" למטה. בלי מפתח אפשר להקליד את הפרטים.'); else banner('');
+      var e = engine(), ok = e === 'free' || aiReady();
+      document.querySelectorAll('input[name=engine]').forEach(function (r) { r.checked = r.value === e; });
+      $('eng-nvidia').hidden = e !== 'nvidia'; $('eng-anthropic').hidden = e !== 'anthropic';
+      $('n-url').value = lsGet('bills.nvUrl');
+      S.canImages = ok;
+      $('k-state').textContent = e === 'free' ? '✓ קריאה חינמית במכשיר פעילה. בפעם הראשונה הטעינה לוקחת כחצי דקה.' : ok ? '✓ קריאה אוטומטית פעילה.' : e === 'nvidia' ? 'חסרים כתובת שרת וקוד גישה. עד אז תמלאו ידנית.' : 'אין מפתח: עד אז תמלאו ידנית.';
+      banner(ok ? '' : 'קריאה אוטומטית לא מוגדרת. בחרו "חינם, במכשיר הזה" בחלק "קריאה אוטומטית" למטה, או מלאו את הפרטים ידנית.');
     }
+    document.querySelectorAll('input[name=engine]').forEach(function (r) { r.onchange = function () { lsSet('bills.engine', r.value === 'free' ? '' : r.value); state(); }; });
     $('k-save').onclick = function () {
-      var v = $('k-key').value.trim(); lsSet('bills.apiKey', v); $('k-key').value = ''; L.sdk = null; S.canImages = !!v; state();
+      var v = $('k-key').value.trim(); lsSet('bills.apiKey', v); $('k-key').value = ''; L.sdk = null; state();
+    };
+    $('n-save').onclick = function () {
+      var u = $('n-url').value.trim(), c = $('n-code').value.trim();
+      if (u && !/^https:\/\//.test(u)) { $('k-state').textContent = 'הכתובת צריכה להתחיל ב-https://'; return; }
+      lsSet('bills.nvUrl', u); if (c) lsSet('bills.nvCode', c); $('n-code').value = ''; state();
     };
     $('bk-export').onclick = function () {
       var out = { app: 'bills', version: 1, exportedAt: new Date().toISOString(), docs: {}, blobs: {} }, ids = Object.keys(L.urls);
@@ -764,7 +827,72 @@ details.tips[open] summary { margin-bottom: 10px; }
     }).catch(function () { return file; });
   }
 
+  // ---------- free on-device reading: Tesseract OCR in the browser + simple rules, no key and no server ----------
+  var OCR_URL = 'https://cdn.jsdelivr.net/npm/tesseract.js@6.0.1/dist/tesseract.min.js';
+  function ocrWorker() {
+    if (!L.ocr) L.ocr = new Promise(function (res, rej) {
+      if (window.Tesseract) return res();
+      var s = document.createElement('script'); s.src = OCR_URL; s.onload = res; s.onerror = rej; document.head.append(s);
+    }).then(function () { return window.Tesseract.createWorker('heb'); });
+    L.ocr.catch(function () { L.ocr = null; });
+    return L.ocr;
+  }
+  var CAT_WORDS = [['שיניים', /שיניים|שן |דנטל|אורתודונט|יישור/], ['פיזיותרפיה', /פיזיו/], ['טיפול רגשי / פסיכולוג', /פסיכו|רגשי|פסיכותרפ/], ['רפואה משלימה', /דיקור|נטורופת|הומאופת|רפלקסולוג|כירופרקט|אוסטאופת/],
+    ['משקפיים ועדשות', /משקפ|עדשות|אופטיק/], ['תרופות', /בית מרקחת|תרופ|פארם/], ['בדיקות ודימות', /אולטרסאונד|MRI|CT|רנטגן|מעבדה|בדיק|דימות/i], ['חדר מיון', /מיון/], ['אמבולנס', /אמבולנס|מד["״]א/],
+    ['התפתחות הילד', /ריפוי בעיסוק|קלינאי|התפתחות/], ['הריון ולידה', /הריון|לידה|מיילד/], ['ניתוח ואשפוז', /ניתוח|אשפוז/], ['רופא מומחה', /ד["״]ר|רופא|מרפאה|ביקור|ייעוץ/]];
+  function num(s) { return Number(String(s).replace(/,/g, '')); }
+  function parseOcr(text) {
+    var lines = text.split('\n').map(function (l) { return l.trim(); }).filter(Boolean), out = {};
+    var dateRe = /(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{4}|\d{2})(?!\d)/g, dates = [];
+    lines.forEach(function (l, i) {
+      var m; dateRe.lastIndex = 0;
+      while ((m = dateRe.exec(l))) {
+        var d = +m[1], mo = +m[2], y = +m[3]; if (y < 100) y += 2000;
+        if (d >= 1 && d <= 31 && mo >= 1 && mo <= 12 && y >= 2015 && y <= 2100) dates.push({ iso: y + '-' + ('0' + mo).slice(-2) + '-' + ('0' + d).slice(-2), pref: /תאריך/.test(l) ? 0 : 1, i: i });
+      }
+    });
+    dates.sort(function (a, b) { return a.pref - b.pref || a.i - b.i; });
+    if (dates[0]) out.date = dates[0].iso;
+    var noDates = function (l) { return l.replace(dateRe, ' '); };
+    var amtRe = /\d{1,3}(?:,\d{3})+(?:\.\d{1,2})?|\d+\.\d{1,2}|\d+/g, best = null;
+    lines.forEach(function (l) {
+      if (!/סה["״']?\s?כ|סך הכל|סך-הכל|לתשלום|שולם|סכום|total/i.test(l)) return;
+      (noDates(l).match(amtRe) || []).forEach(function (n) { var v = num(n); if (v > 0 && v < 100000 && (best == null || v > best)) best = v; });
+    });
+    if (best == null) (noDates(text).match(/\d{1,3}(?:,\d{3})*\.\d{2}(?!\d)/g) || []).forEach(function (n) { var v = num(n); if (v > 0 && v < 100000 && (best == null || v > best)) best = v; });
+    if (best != null) out.amount = best;
+    var rn = /(?:קבלה|חשבונית)[^\d\n]{0,25}?(\d{3,12})/.exec(text) || /מס['׳]?\s*(?:קבלה)?\s*[:#]?\s*(\d{3,12})/.exec(text);
+    if (rn) out.receiptNumber = rn[1];
+    var prov = lines.find(function (l) { return (l.match(/[א-ת]/g) || []).length >= 3 && !/קבלה|חשבונית|תאריך|עוסק|ח\.?פ|טלפון|טל['׳:]|כתובת|מקור|העתק/.test(l); });
+    if (prov) out.provider = prov.replace(/[|_~*<>{}\[\]]/g, '').replace(/\s+/g, ' ').trim().slice(0, 60);
+    out.member = memberNames().find(function (n) { return n && text.indexOf(n) >= 0; }) || '';
+    var cat = CAT_WORDS.find(function (c) { return c[1].test(text); });
+    out.category = cat ? cat[0] : 'אחר';
+    return out;
+  }
+  function ocrReceipt(blob) {
+    return ocrWorker().then(function (w) { return w.recognize(blob); }).then(function (r) {
+      var text = (r && r.data && r.data.text) || '', f = parseOcr(text);
+      if (!text.trim()) throw { code: 'refused' };
+      var pols = S.settings.policies, kup = pols.filter(function (p) { return p.kind === 'kupah'; }), prv = pols.filter(function (p) { return p.kind !== 'kupah'; });
+      var p1 = kup[0] || prv[0], p2 = kup[0] && prv[0] && f.category !== 'חדר מיון' && f.category !== 'אמבולנס' ? prv[0] : null;
+      var docs = ['קבלה מקורית עם מספר עוסק'];
+      if (/רופא מומחה|פיזיותרפיה|בדיקות|התפתחות|ניתוח/.test(f.category)) docs.push('הפניה מרופא');
+      if (/רופא מומחה|ניתוח|חדר מיון/.test(f.category)) docs.push('סיכום ביקור');
+      var missing = [!f.amount && 'סכום', !f.date && 'תאריך', !f.provider && 'שם נותן השירות', !f.receiptNumber && 'מספר קבלה'].filter(Boolean);
+      return {
+        provider: f.provider || '', date: f.date || '', amount: f.amount != null ? f.amount : null, receiptNumber: f.receiptNumber || '',
+        member: f.member, category: f.category, description: '', policyId: p1 ? p1.id : '', policy2Id: p2 ? p2.id : '',
+        ai: { note: 'נקרא בחינם במכשיר. בדקו שהפרטים נכונים לפני הגשה.' + (missing.length ? ' לא זוהו: ' + missing.join(', ') + '.' : ''), docsNeeded: docs, ocr: true },
+        status: 'new', updatedAt: Date.now()
+      };
+    }, function (e) { throw e && e.code ? e : { code: 'ocr_load' }; }).catch(function (e) {
+      throw ({ refused: 'לא נמצא טקסט בתמונה. צלמו שוב באור טוב, או מלאו ידנית.', ocr_load: 'לא הצלחנו לטעון את רכיב הקריאה (צריך אינטרנט בפעם הראשונה). מלאו ידנית או נסו שוב.' }[e && e.code] || 'הקריאה נכשלה. מלאו את הפרטים ידנית.');
+    });
+  }
+
   function readReceipt(blob) {
+    if (LOCAL && engine() === 'free') return ocrReceipt(blob);
     var pols = S.settings.policies.map(function (p) { return { id: p.id, name: p.name, kind: KINDS[p.kind] || p.kind, coverage: p.coverage || '' }; });
     var prompt = [
       'The image is a photo of a receipt (usually Israeli, usually Hebrew) that the user wants a refund for from health insurance.',
@@ -998,6 +1126,20 @@ details.tips[open] summary { margin-bottom: 10px; }
   function draftAppeal(d, btn, out, cbtn) {
     if (!S.sample) { out.hidden = false; out.textContent = 'ניסוח אוטומטי לא זמין כאן.'; return; }
     var pol = policyById(d.policyId);
+    if (LOCAL && !aiReady()) {
+      // Free mode: a ready-made template filled from the receipt, no AI needed.
+      var v = function (x, ph) { return x ? String(x) : '[' + ph + ']'; };
+      out.hidden = false; cbtn.hidden = false;
+      out.textContent = ['לכבוד מחלקת תביעות, ' + v(pol && pol.name, 'שם המבטח'), '',
+        'הנדון: ערעור על דחיית תביעה מס\' ' + v(d.claimNumber, 'מספר תביעה'), '',
+        'שלום רב,', '',
+        'ביום ' + v(d.submittedAt && fmtDate(d.submittedAt), 'תאריך הגשה') + ' הגשתי תביעה להחזר עבור ' + v(d.category, 'סוג השירות') + (d.description ? ' (' + d.description + ')' : '') + ' שקיבל/ה ' + v(d.member, 'שם המבוטח') + ' אצל ' + v(d.provider, 'נותן השירות') + ' בתאריך ' + v(d.date && fmtDate(d.date), 'תאריך הטיפול') + ', בסך ' + v(d.amount != null && d.amount !== '' ? d.amount + ' ש"ח' : '', 'סכום') + ' (קבלה מס\' ' + v(d.receiptNumber, 'מספר קבלה') + ').',
+        'התביעה נדחתה. לדעתי הטיפול מכוסה לפי תנאי הפוליסה, ולכן אבקש לשקול מחדש את ההחלטה.', '',
+        'אבקש לקבל תשובה מנומקת בכתב, כולל הסעיף בפוליסה שעליו נשענת הדחייה, אם תעמדו עליה.', '',
+        'מצורפים: קבלה מקורית, ' + v('', 'הפניה / סיכום ביקור / מסמכים נוספים') + ', מכתב הדחייה.', '',
+        'בברכה,', '[שם מלא]', '[תעודת זהות]', '[טלפון]'].join('\n');
+      return;
+    }
     btn.disabled = true; out.hidden = false; out.textContent = 'מנסח… (בדרך כלל 10–30 שניות)';
     var prompt = 'Write a short, polite, firm appeal letter in Hebrew to an Israeli health insurer about a rejected refund claim. Use only the facts below; put [בסוגריים] any detail that is missing for the user to fill in. Plain text, no markdown. Start with "לכבוד מחלקת תביעות, ' + (pol ? pol.name : '[שם המבטח]') + '", include a subject line with the claim number, ask for reconsideration and a written, reasoned answer, list the attached documents, end with a signature placeholder.\n\nFacts: ' + JSON.stringify({ insured: d.member, provider: d.provider, date: fmtDate(d.date), service: d.category + (d.description ? ' – ' + d.description : ''), amount: d.amount, receipt: d.receiptNumber, claimNumber: d.claimNumber, submitted: fmtDate(d.submittedAt), rejectionNotes: d.notes });
     S.sample(prompt, { cache: false, onText: function (u) { out.textContent = u.text; } }).then(function (r) { out.textContent = r.text; cbtn.hidden = false; }, function (e) {
